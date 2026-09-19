@@ -8,16 +8,24 @@ import LongformArticles from './components/LongformArticles'
 import Footer from './components/Footer'
 import NewsModal from './components/NewsModal'
 import BackToTop from './components/BackToTop'
+import SkeletonLoader from './components/SkeletonLoader'
 import { fetchNews } from './store/newsSlice'
 import { NEWS_CATEGORIES } from './data/rssData.js'
+import { useLoadingTimer } from './hooks/useLoadingTimer'
 
 const FIRST_ARTICLE_COUNT = 1
 const RECENT_ARTICLES_COUNT = 3
 const LONGFORM_PAGE_SIZE = 6
 
+function getCategoryLabel(id) {
+  const found = NEWS_CATEGORIES.find((cat) => cat.id === id)
+  return found ? found.label : id
+}
+
 function App() {
   const dispatch = useDispatch()
   const { items, loading, error } = useSelector((state) => state.news)
+  const isShowingLoading = useLoadingTimer(loading)
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [visibleLongform, setVisibleLongform] = useState(LONGFORM_PAGE_SIZE)
   const sentinelRef = useRef(null)
@@ -109,12 +117,11 @@ function App() {
           )
         }
       },
-      { rootMargin: '400px' }
+      { rootMargin: '150px', threshold: 0.1 }
     )
-
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [hasMoreLongform, articleGroups.longformPool.length])
+  }, [hasMoreLongform, articleGroups.longformPool.length, visibleLongform])
 
   // Prepare category articles data for Browse by Category columns
   const categoryArticles = useMemo(() => {
@@ -138,37 +145,25 @@ function App() {
     })
   }, [articleGroups, items])
 
-  if (loading && items.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark animate-fadeIn">
-        <div className="text-center">
-          <div className="loading-spinner inline-block w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full mb-4"></div>
-          <div className="loading-dots flex justify-center gap-1 mb-3">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
-          </div>
-          <p className="text-text-muted-light dark:text-text-muted-dark text-sm font-medium">Đang tải tin tức...</p>
-        </div>
-      </div>
-    )
+  if (isShowingLoading && items.length === 0) {
+    return <SkeletonLoader />
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark animate-fadeIn">
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
         <p className="text-red-500">{error}</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark animate-fadeIn">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Render first articles */}
         {articleGroups.firstArticles.length > 0 && (
-          <div className="mb-12 lg:mb-16">
+          <div className="mb-12 lg:mb-16 animate-pageFadeInUp">
             {articleGroups.firstArticles.map((article, index) => (
               <FirstArticle key={article.id || index} news={article} onOpen={setSelectedArticle} />
             ))}
@@ -177,18 +172,19 @@ function App() {
 
         {/* Latest News section using recent articles */}
         {articleGroups.recentArticles.length > 0 && (
-          <section className="mb-12 lg:mb-16">
+          <section className="mb-12 lg:mb-16 animate-pageFadeInUp stagger-1">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
               <div className="lg:col-span-10">
                 <h2 className="mb-4 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark">
-                  Latest News
+                  Tin mới nhất
                 </h2>
                 <div className="flex flex-col space-y-4">
                   {articleGroups.recentArticles.map((article, index) => (
                     <button
                       key={article.id || index}
                       onClick={() => setSelectedArticle(article)}
-                      className="group flex items-start justify-between gap-4 border-b border-border-light dark:border-border-dark pb-4 text-left w-full"
+                      className="group flex items-start justify-between gap-4 border-b border-border-light dark:border-border-dark pb-4 text-left w-full animate-cardAppear"
+                      style={{ animationDelay: `${(index + 1) * 0.08}s` }}
                     >
                       <p className="text-base font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
                         {article.title}
@@ -205,22 +201,23 @@ function App() {
         )}
 
         {/* Browse by Category + Featured Articles layout: Left (4 category articles), Center (Featured Articles with smaller images), Right (4 category articles) */}
-        <section className="mb-12 lg:mb-16">
+        <section className="mb-12 lg:mb-16 animate-pageFadeInUp stagger-2">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Column: 4 Browse by Category articles */}
             <div className="hidden lg:block lg:col-span-3 space-y-6">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark border-b border-border-light dark:border-border-dark pb-2">
-                Browse by Category
+                Xem theo chuyên mục
               </h3>
               <div className="flex flex-col space-y-4">
                 {categoryArticles.slice(0, 4).map((article, index) => (
                   <button
                     key={article.id || index}
                     onClick={() => setSelectedArticle(article)}
-                    className="group text-left block w-full"
+                    className="group text-left block w-full animate-cardAppear"
+                    style={{ animationDelay: `${(index + 1) * 0.06}s` }}
                   >
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1">
-                      {article.category}
+                      {getCategoryLabel(article.category)}
                     </p>
                     <h4 className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors line-clamp-2">
                       {article.title}
@@ -233,7 +230,7 @@ function App() {
             {/* Center Column: Featured Articles with smaller images */}
             <div className="col-span-1 lg:col-span-6 lg:border-l lg:border-r border-border-light dark:border-border-dark lg:px-6">
               <h2 className="mb-4 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark">
-                Featured Articles
+                Bài viết nổi bật
               </h2>
               <FeaturedArticles articles={articleGroups.featuredArticles} onOpen={setSelectedArticle} />
             </div>
@@ -241,14 +238,15 @@ function App() {
             {/* Right Column: Next 4 Browse by Category articles */}
             <div className="hidden lg:block lg:col-span-3 space-y-6">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark border-b border-border-light dark:border-border-dark pb-2">
-                More Categories
+                Chuyên mục khác
               </h3>
               <div className="flex flex-col space-y-4">
                 {categoryArticles.slice(4, 8).map((article, index) => (
                   <button
                     key={article.id || index}
                     onClick={() => setSelectedArticle(article)}
-                    className="group text-left block w-full"
+                    className="group text-left block w-full animate-cardAppear"
+                    style={{ animationDelay: `${(index + 1) * 0.06}s` }}
                   >
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1">
                       {article.category}
@@ -264,22 +262,23 @@ function App() {
         </section>
 
         {/* Category Grid section */}
-        <section className="mb-12 lg:mb-16">
+        <section className="mb-12 lg:mb-16 animate-pageFadeInUp stagger-3">
           <CategoryGrid />
         </section>
 
         {/* Longform Articles section with infinite scroll */}
-        <section className="mb-12 lg:mb-16">
+        <section className="mb-12 lg:mb-16 animate-pageFadeInUp stagger-4">
           <LongformArticles articles={longformVisible} onOpen={setSelectedArticle} />
-          <div ref={sentinelRef} className="py-6 text-center">
+          <div ref={sentinelRef} className="h-8 flex items-center justify-center py-0 m-0">
             {hasMoreLongform ? (
-              <div>
-                <div className="loading-spinner inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full mb-2"></div>
-                <p className="text-text-muted-light dark:text-text-muted-dark text-sm">Đang tải thêm tin tức...</p>
+              <div className="flex items-center gap-1" aria-label="Đang tải thêm">
+                <span className="loading-dot w-1 h-1 rounded-full bg-primary inline-block"></span>
+                <span className="loading-dot loading-dot-2 w-1 h-1 rounded-full bg-primary inline-block"></span>
+                <span className="loading-dot loading-dot-3 w-1 h-1 rounded-full bg-primary inline-block"></span>
               </div>
             ) : (
               articleGroups.longformPool.length > 0 && (
-                <p className="text-text-muted-light dark:text-text-muted-dark text-sm font-medium">Đã hiển thị tất cả tin tức</p>
+                <p className="text-text-muted-light dark:text-text-muted-dark text-[10px] font-medium m-0">Đã hiển thị tất cả tin tức</p>
               )
             )}
           </div>

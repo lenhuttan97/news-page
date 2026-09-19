@@ -6,6 +6,8 @@ export const HOME_FEEDS = [
   { source: 'Tuổi Trẻ', rss_url: 'https://tuoitre.vn/home.rss', color: 'orange' },
   { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/home.rss', color: 'green' },
   { source: 'Lao Động', rss_url: 'https://laodong.vn/rss', color: 'red' },
+  { source: 'Thể Thao 247', rss_url: 'https://thethao247.vn/trang-chu.rss', color: 'red' },
+  { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/trangchu24h.rss', color: 'blue' },
 ];
 
 export const CATEGORY_FEEDS = {
@@ -24,6 +26,7 @@ export const CATEGORY_FEEDS = {
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/phap-luat.rss', color: 'blue' },
     { source: 'Tuổi Trẻ', rss_url: 'https://tuoitre.vn/phap-luat.rss', color: 'orange' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/thoi-su/phap-luat.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/tintuctrongngay.rss', color: 'red' },
   ],
   'kinh-te': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/kinh-doanh.rss', color: 'blue' },
@@ -35,6 +38,7 @@ export const CATEGORY_FEEDS = {
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/bat-dong-san.rss', color: 'blue' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/kinh-te/dia-oc.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/thoi-su/lao-dong-viec-lam.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/taichinhbatdongsan.rss', color: 'red' },
   ],
   'giao-duc': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/giao-duc.rss', color: 'blue' },
@@ -47,6 +51,7 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/giao-duc/phu-huynh.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/giao-duc/tra-cuu-diem-thi.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/giao-duc/on-thi-tot-nghiep.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/giaoducduhoc.rss', color: 'red' },
   ],
   'cong-nghe': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/khoa-hoc.rss', color: 'blue' },
@@ -59,6 +64,7 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/cong-nghe/xu-huong-chuyen-doi-so.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/cong-nghe/thu-thuat.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/cong-nghe/game.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/congnghethongtin.rss', color: 'red' },
   ],
   'the-thao': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/the-thao.rss', color: 'blue' },
@@ -68,6 +74,9 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/the-thao/bong-da-quoc-te.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/the-thao/bong-da-thanh-nien-sinh-vien.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/the-thao/cac-mon-khac.rss', color: 'green' },
+    { source: 'Thể Thao 247', rss_url: 'https://thethao247.vn/bong-da.rss', color: 'red' },
+    { source: 'Thể Thao 247', rss_url: 'https://thethao247.vn/the-thao-24h.rss', color: 'red' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/bongda.rss', color: 'red' },
   ],
   'suc-khoe': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/suc-khoe.rss', color: 'blue' },
@@ -75,6 +84,7 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/suc-khoe.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/suc-khoe/y-te-thong-minh.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/thoi-su/thanh-tuu-y-khoa.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/suckhoedoisong.rss', color: 'red' },
   ],
   'doi-song': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/gia-dinh.rss', color: 'blue' },
@@ -84,6 +94,7 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/gioi-tre.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/gioi-tre/khoi-nghiep.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/gioi-tre/co-hoi-nghe-nghiep.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/bantrecuocsong.rss', color: 'red' },
   ],
   'van-hoa': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/giai-tri.rss', color: 'blue' },
@@ -94,6 +105,7 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/giai-tri/phim.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/giai-tri/truyen-hinh.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/van-hoa/sach-hay.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/phim.rss', color: 'red' },
   ],
   'du-lich': [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/du-lich.rss', color: 'blue' },
@@ -101,6 +113,7 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/du-lich.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/du-lich/kham-pha.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/du-lich/cau-chuyen-du-lich.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/dulich.rss', color: 'red' },
   ],
   xe: [
     { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/oto-xe-may.rss', color: 'blue' },
@@ -109,6 +122,7 @@ export const CATEGORY_FEEDS = {
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/xe/thi-truong.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/xe/xe-xanh.rss', color: 'green' },
     { source: 'Thanh Niên', rss_url: 'https://thanhnien.vn/rss/xe/danh-gia-xe.rss', color: 'green' },
+    { source: '24h.com', rss_url: 'https://cdn.24h.com.vn/upload/rss/oto.rss', color: 'red' },
   ],
   'quoc-phong': [
     { source: 'QĐND', rss_url: 'https://www.qdnd.vn/rss', color: 'purple' },

@@ -12,13 +12,13 @@ function Footer() {
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/5 dark:bg-white/10 transition-colors hover:text-text-light dark:hover:text-text-dark">
             <span className="material-symbols-outlined">i</span>
           </div>
-          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">About Us</a>
-          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Contact</a>
-          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Privacy Policy</a>
-          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Terms of Service</a>
-          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Careers</a>
+          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Giới thiệu</a>
+          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Liên hệ</a>
+          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Chính sách bảo mật</a>
+          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Điều khoản dịch vụ</a>
+          <a href="#" className="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark link-underline">Tuyển dụng</a>
         </div>
-        <p className="mt-2 text-xs text-text-muted-light dark:text-text-muted-dark">© 2024 The Chronicle. All Rights Reserved.</p>
+        <p className="mt-2 text-xs text-text-muted-light dark:text-text-muted-dark">© 2024 Tafu Hub. All Rights Reserved.</p>
       </div>
     </footer>
   );

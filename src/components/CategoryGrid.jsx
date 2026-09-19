@@ -27,21 +27,21 @@ function CategoryGrid() {
     <section>
       <div className="text-center mb-8">
         <h2 className="font-serif text-3xl font-bold tracking-tight text-text-light dark:text-text-dark">
-          Browse by Category
+          Xem theo chuyên mục
         </h2>
       </div>
-      <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-6">
-        {categories.map((cat) => (
-          <Link key={cat.id} to={`/category/${cat.id}`} className="group flex flex-col items-center gap-3 text-center">
-            <span className="material-symbols-outlined text-4xl text-text-muted-light dark:text-text-muted-dark group-hover:text-accent transition-colors">
-              {cat.icon}
-            </span>
-            <span className="text-sm font-semibold text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
-              {cat.label}
-            </span>
-          </Link>
-        ))}
-      </div>
+<div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-6">
+          {categories.map((cat) => (
+            <Link key={cat.id} to={`/category/${cat.id}`} className="group flex flex-col items-center gap-3 text-center animate-cardAppear">
+              <span className="material-symbols-outlined text-4xl text-text-muted-light dark:text-text-muted-dark group-hover:text-accent transition-colors">
+                {cat.icon}
+              </span>
+              <span className="text-sm font-semibold text-balance group-hover:text-accent transition-colors">
+                {cat.label}
+              </span>
+            </Link>
+          ))}
+        </div>
     </section>
   )
 }

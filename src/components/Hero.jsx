@@ -11,7 +11,7 @@ function Hero() {
         />
         <div className="flex flex-col items-start justify-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-accent">
-            Top Story
+            Tin nổi bật
           </p>
           <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-text-light dark:text-text-dark md:text-5xl lg:text-6xl">
             A New Era of Exploration Begins as Rover Lands on Distant Planet
@@ -24,10 +24,10 @@ function Hero() {
           </p>
           <div className="mt-8 flex items-center gap-4">
             <a href="#" className="btn-primary">
-              Read Full Story
+              Đọc toàn bộ
             </a>
             <a href="#" className="btn-secondary">
-              Share
+              Chia sẻ
             </a>
           </div>
         </div>

@@ -97,7 +97,7 @@ function Header() {
                 <span className="material-symbols-outlined text-[18px]">expand_more</span>
               </button>
               {moreOpen && (
-                <div className="absolute left-0 top-full mt-2 w-56 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark p-2 shadow-lg animate-fadeIn z-50">
+                <div className="absolute left-0 top-full mt-2 w-56 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark p-2 shadow-lg z-50">
                   {otherCategories.map((cat) => (
                     <Link
                       key={cat.id}

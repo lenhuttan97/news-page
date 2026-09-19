@@ -36,6 +36,8 @@ function LongformArticles({ articles, onOpen }) {
         },
       ]
 
+const LONGFORM_PAGE_SIZE = 6
+
   return (
     <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-12 lg:pb-16">
       <div className="flex flex-col space-y-8 border-t border-border-light dark:border-border-dark pt-12 lg:pt-16">
@@ -43,7 +45,8 @@ function LongformArticles({ articles, onOpen }) {
           <div
             key={article.id || index}
             onClick={() => onOpen && onOpen(article)}
-            className="group block border-b border-border-light dark:border-border-dark pb-8 cursor-pointer"
+            className="group block border-b border-border-light dark:border-border-dark pb-8 cursor-pointer animate-cardAppear"
+            style={{ animationDelay: index < LONGFORM_PAGE_SIZE ? `${(index + 1) * 0.08}s` : '0s' }}
           >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
               <div className="md:col-span-3">

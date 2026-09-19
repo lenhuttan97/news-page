@@ -8,7 +8,7 @@ function FirstArticle({ news, onOpen }) {
   }
 
   return (
-    <section className="mb-12 lg:mb-16">
+    <section className="mb-12 lg:mb-16 animate-heroSlideIn">
       <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
         <img
           src={news.image ? news.image : 'https://picsum.photos/seed/news-hero/800/450'}
@@ -17,9 +17,9 @@ function FirstArticle({ news, onOpen }) {
           className="w-full object-cover rounded-lg aspect-video cursor-pointer"
           onClick={open}
         />
-        <div className="flex flex-col items-start justify-center">
+        <div className="flex flex-col items-start justify-center animate-cardAppear stagger-1">
           <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-accent">
-            Top Story
+            Tin nổi bật
           </p>
           <h1
             className="font-serif text-3xl font-bold leading-tight tracking-tight text-text-light dark:text-text-dark md:text-4xl lg:text-5xl cursor-pointer hover:text-accent transition-colors"
@@ -35,7 +35,7 @@ function FirstArticle({ news, onOpen }) {
           </p>
           <div className="mt-8 flex items-center gap-4">
             <button onClick={open} className="btn-primary">
-              Read Full Story
+              Đọc toàn bộ
             </button>
             <button
               onClick={(e) => {
@@ -46,7 +46,7 @@ function FirstArticle({ news, onOpen }) {
               }}
               className="btn-secondary"
             >
-              Share
+              Chia sẻ
             </button>
           </div>
         </div>

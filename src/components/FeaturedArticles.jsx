@@ -16,16 +16,14 @@ function FeaturedArticles({ articles, onOpen }) {
           key={article.id || index}
           type="button"
           onClick={() => onOpen && onOpen(article)}
-          className="group flex flex-col gap-2 text-left bg-black/5 dark:bg-white/5 p-4 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+          className="group flex flex-col gap-2 text-left bg-black/5 dark:bg-white/5 p-4 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors animate-cardAppear"
+          style={{ animationDelay: `${(index + 1) * 0.08}s` }}
         >
-          <div
-            className="w-full bg-cover bg-center bg-no-repeat aspect-[16/9] max-h-[140px] rounded-md"
-            style={{
-              backgroundImage: article.image
-                ? `url("${article.image}")`
-                : 'url("https://picsum.photos/seed/featured/400/225")',
-            }}
+          <img
+            src={article.image ? article.image : 'https://picsum.photos/seed/featured/400/225'}
             alt={article.title}
+            loading="lazy"
+            className="w-full object-cover aspect-[16/9] max-h-[140px] rounded-md"
           />
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1">
