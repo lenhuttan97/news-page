@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useParams, Link } from 'react-router-dom'
 import Header from './Header'
@@ -10,6 +10,7 @@ import {
   fetchCategoryNews,
 } from '../store/newsSlice'
 import { NEWS_CATEGORIES } from '../data/rssData'
+import NewsModal from './NewsModal'
 
 function getCategoryLabel(id) {
   const found = NEWS_CATEGORIES.find((cat) => cat.id === id)
@@ -86,6 +87,36 @@ function CategoryPage() {
 
   const categoryName = getCategoryLabel(slug)
 
+  const CATEGORY_PAGE_SIZE = 20
+  const [visibleCount, setVisibleCount] = useState(CATEGORY_PAGE_SIZE)
+  const sentinelRef = useRef(null)
+  const [selectedArticle, setSelectedArticle] = useState(null)
+
+  useEffect(() => {
+    setVisibleCount(CATEGORY_PAGE_SIZE)
+  }, [slug])
+
+  const hasMoreCategory = visibleCount < categoryArticles.length
+
+  useEffect(() => {
+    if (hasMoreCategory) {
+      const sentinel = sentinelRef.current
+      if (!sentinel) return
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setVisibleCount((prev) =>
+              Math.min(prev + CATEGORY_PAGE_SIZE, categoryArticles.length)
+            )
+          }
+        },
+        { rootMargin: '400px' }
+      )
+      observer.observe(sentinel)
+      return () => observer.disconnect()
+    }
+  }, [hasMoreCategory, categoryArticles.length])
+
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
       <Header />
@@ -103,8 +134,20 @@ function CategoryPage() {
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
             <div className="lg:col-span-9">
               <div className="flex flex-col space-y-8">
-                {categoryArticles.map((article, index) => (
-                  <article key={article.id || index} className="group block border-b border-border-light dark:border-border-dark pb-8">
+                {categoryArticles.slice(0, visibleCount).map((article, index) => (
+                  <article
+                    key={article.id || index}
+                    onClick={() => setSelectedArticle(article)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelectedArticle(article)
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="group block cursor-pointer border-b border-border-light dark:border-border-dark pb-8"
+                  >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                       <div className="md:col-span-2">
                         <p className="text-xs font-semibold uppercase tracking-wider text-accent mb-2">
@@ -149,15 +192,20 @@ function CategoryPage() {
                   </h2>
                   <div className="flex flex-col space-y-4">
                     {sidebarArticles.map((item, index) => (
-                        <a key={item.id || index} href="#" className="group">
-                          <p className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
-                            {item.title}
-                          </p>
-                          <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
-                            {item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''} • {item.source}
-                          </p>
-                        </a>
-                      ))}
+                      <button
+                        key={item.id || index}
+                        type="button"
+                        onClick={() => setSelectedArticle(item)}
+                        className="group w-full text-left"
+                      >
+                        <p className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
+                          {item.title}
+                        </p>
+                        <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
+                          {item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''} • {item.source}
+                        </p>
+                       </button>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -173,8 +221,14 @@ function CategoryPage() {
         )}
       </main>
       <Footer />
+
+      {selectedArticle && (
+        <NewsModal news={selectedArticle} onClose={() => setSelectedArticle(null)} />
+      )}
     </div>
   )
 }
 
 export default CategoryPage
+
+export { NewsModal }
