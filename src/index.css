@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #137fec;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #0A0F18;
+  --color-text-light: #1A1A1A;
+  --color-text-dark: #E0E0E0;
+  --color-text-muted-light: #6B6B6B;
+  --color-text-muted-dark: #999999;
+  --color-border-light: #E0E0E0;
+  --color-border-dark: #2A3040;
+  --color-accent: #137fec;
+  
+  --font-family-display: "Inter", sans-serif;
+  --font-family-serif: "Inter", sans-serif;
+  --font-family-body: "Inter", sans-serif;
+  
+  --radius-default: 0.5rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-full: 9999px;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-background-light dark:bg-background-dark font-body text-text-light dark:text-text-dark antialiased;
+  }
+  
+  * {
+    @apply border-border-light dark:border-border-dark;
+  }
+  
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+}
+
+@layer utilities {
+  .font-serif-display {
+    font-family: var(--font-family-serif);
+  }
+  
+  .font-display {
+    font-family: var(--font-family-display);
+  }
+  
+  .font-body {
+    font-family: var(--font-family-body);
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+  
+  .aspect-[4/3] {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-primary/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border-light dark:border-border-dark bg-transparent px-6 py-3 text-sm font-semibold text-text-light dark:text-text-dark transition-all hover:bg-black/5 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark;
+  }
+  
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-text-muted-light dark:text-text-muted-dark transition-all hover:text-text-light dark:hover:text-text-dark hover:bg-black/5 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark;
+  }
+  
+  .input-field {
+    @apply w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-4 py-3 text-text-light dark:text-text-dark placeholder:text-text-muted-light dark:placeholder:text-text-muted-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
+  }
+  
+  .card {
+    @apply rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark shadow-sm transition-all hover:shadow-md;
+  }
+  
+  .link-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-full after:scale-x-0 after:bg-current after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+}

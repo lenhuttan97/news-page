@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.superpowers/
+.git-empty-root-backup/
+.DS_Store
+*.local
+
+# opencode config & modules
+opencode.json
+opencode.jsonc
+.opencode/
+.git/opencode
