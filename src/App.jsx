@@ -2,19 +2,17 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Header from './components/Header'
 import FirstArticle from './components/FirstArticle'
-import CategoryArticles from './components/CategoryArticles'
+import FeaturedArticles from './components/FeaturedArticles'
 import CategoryGrid from './components/CategoryGrid'
 import LongformArticles from './components/LongformArticles'
 import Footer from './components/Footer'
-import NewsCard from './components/NewsCard'
 import NewsModal from './components/NewsModal'
+import BackToTop from './components/BackToTop'
 import { fetchNews } from './store/newsSlice'
 import { NEWS_CATEGORIES } from './data/rssData.js'
 
 const FIRST_ARTICLE_COUNT = 1
 const RECENT_ARTICLES_COUNT = 3
-const FEATURED_ARTICLES_COUNT = 6
-const BROWSE_CATEGORY_COUNT = 4
 const LONGFORM_PAGE_SIZE = 6
 
 function App() {
@@ -61,21 +59,21 @@ function App() {
       if (withImage(item)) recentArticles.push(take(item))
     }
 
-    // Group 3: Featured articles
+    // Group 3: Featured articles (4 articles)
     const featuredArticles = []
     for (const item of items) {
-      if (featuredArticles.length >= FEATURED_ARTICLES_COUNT) break
+      if (featuredArticles.length >= 4) break
       if (withImage(item)) featuredArticles.push(take(item))
     }
 
     // Group 4: Browse by Category articles
     const browseCategoryArticles = []
     for (const item of items) {
-      if (browseCategoryArticles.length >= BROWSE_CATEGORY_COUNT) break
+      if (browseCategoryArticles.length >= 8) break
       if (withImage(item)) browseCategoryArticles.push(take(item))
     }
 
-    // Group 5: Longform pool = all remaining articles with images (no cap, no wrap)
+    // Group 5: Longform pool = all remaining articles with images
     const longformPool = items.filter((item) => withImage(item)).map((item) => take(item))
 
     return {
@@ -101,11 +99,11 @@ function App() {
   // Infinite scroll: load more longform articles when sentinel enters viewport
   useEffect(() => {
     const sentinel = sentinelRef.current
-    if (!sentinel || !hasMoreLongform) return
+    if (!sentinel) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && hasMoreLongform) {
           setVisibleLongform((prev) =>
             Math.min(prev + LONGFORM_PAGE_SIZE, articleGroups.longformPool.length)
           )
@@ -118,9 +116,8 @@ function App() {
     return () => observer.disconnect()
   }, [hasMoreLongform, articleGroups.longformPool.length])
 
-  // Prepare category articles data for the Browse by Category section
+  // Prepare category articles data for Browse by Category columns
   const categoryArticles = useMemo(() => {
-    // Use NEWS_CATEGORIES from rssData.js
     return NEWS_CATEGORIES.filter(cat => cat.id !== 'all').map(cat => {
       const matchingArticle = articleGroups.browseCategoryArticles.find(
         article => article.category && article.category.toLowerCase() === cat.id
@@ -143,7 +140,7 @@ function App() {
 
   if (loading && items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark animate-fadeIn">
         <div className="text-center">
           <div className="loading-spinner inline-block w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full mb-4"></div>
           <div className="loading-dots flex justify-center gap-1 mb-3">
@@ -159,14 +156,14 @@ function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark animate-fadeIn">
         <p className="text-red-500">{error}</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark animate-fadeIn">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Render first articles */}
@@ -207,23 +204,62 @@ function App() {
           </section>
         )}
 
-        {/* Browse by Category section */}
+        {/* Browse by Category + Featured Articles layout: Left (4 category articles), Center (Featured Articles with smaller images), Right (4 category articles) */}
         <section className="mb-12 lg:mb-16">
-          <h2 className="mb-6 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark">
-            Browse by Category
-          </h2>
-          <CategoryArticles articles={categoryArticles} onOpen={setSelectedArticle} />
-        </section>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: 4 Browse by Category articles */}
+            <div className="hidden lg:block lg:col-span-3 space-y-6">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark border-b border-border-light dark:border-border-dark pb-2">
+                Browse by Category
+              </h3>
+              <div className="flex flex-col space-y-4">
+                {categoryArticles.slice(0, 4).map((article, index) => (
+                  <button
+                    key={article.id || index}
+                    onClick={() => setSelectedArticle(article)}
+                    className="group text-left block w-full"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1">
+                      {article.category}
+                    </p>
+                    <h4 className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors line-clamp-2">
+                      {article.title}
+                    </h4>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* Featured Articles section */}
-        <section className="mb-12 lg:mb-16">
-          <h2 className="mb-6 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark">
-            Featured Articles
-          </h2>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            {articleGroups.featuredArticles.map((article, index) => (
-              <NewsCard key={article.id || index} news={article} />
-            ))}
+            {/* Center Column: Featured Articles with smaller images */}
+            <div className="col-span-1 lg:col-span-6 lg:border-l lg:border-r border-border-light dark:border-border-dark lg:px-6">
+              <h2 className="mb-4 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark">
+                Featured Articles
+              </h2>
+              <FeaturedArticles articles={articleGroups.featuredArticles} onOpen={setSelectedArticle} />
+            </div>
+
+            {/* Right Column: Next 4 Browse by Category articles */}
+            <div className="hidden lg:block lg:col-span-3 space-y-6">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark border-b border-border-light dark:border-border-dark pb-2">
+                More Categories
+              </h3>
+              <div className="flex flex-col space-y-4">
+                {categoryArticles.slice(4, 8).map((article, index) => (
+                  <button
+                    key={article.id || index}
+                    onClick={() => setSelectedArticle(article)}
+                    className="group text-left block w-full"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1">
+                      {article.category}
+                    </p>
+                    <h4 className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors line-clamp-2">
+                      {article.title}
+                    </h4>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -243,13 +279,14 @@ function App() {
               </div>
             ) : (
               articleGroups.longformPool.length > 0 && (
-                <p className="text-text-muted-light dark:text-text-muted-dark text-sm">Đã hiển thị tất cả tin tức</p>
+                <p className="text-text-muted-light dark:text-text-muted-dark text-sm font-medium">Đã hiển thị tất cả tin tức</p>
               )
             )}
           </div>
         </section>
       </main>
       <Footer />
+      <BackToTop />
 
       {selectedArticle && (
         <NewsModal news={selectedArticle} onClose={() => setSelectedArticle(null)} />

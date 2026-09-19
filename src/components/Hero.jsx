@@ -17,7 +17,7 @@ function Hero() {
             A New Era of Exploration Begins as Rover Lands on Distant Planet
           </h1>
           <p className="mt-4 text-lg text-text-muted-light dark:text-text-muted-dark">
-            By Eva Rostova • 2 hours ago • The Chronicle
+            By Eva Rostova • 2 hours ago • Tafu Hub
           </p>
           <p className="mt-6 text-sm text-text-muted-light dark:text-text-muted-dark">
             The latest developments in space exploration as NASA reveals new findings from the Mars mission, marking a significant milestone in humanity's understanding of the red planet.

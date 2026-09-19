@@ -158,12 +158,15 @@ async function fetchFeedList(feeds, forcedCategory) {
       }
     }),
   );
-  const seen = new Set();
+  const seenIds = new Set();
+  const seenLinks = new Set();
   return settled
     .flat()
     .filter((item) => {
-      if (!item.link || seen.has(item.link)) return false;
-      seen.add(item.link);
+      if (!item.id || !item.link) return false;
+      if (seenIds.has(item.id) || seenLinks.has(item.link)) return false;
+      seenIds.add(item.id);
+      seenLinks.add(item.link);
       return true;
     })
     .sort((a, b) => dateToNumber(b) - dateToNumber(a));

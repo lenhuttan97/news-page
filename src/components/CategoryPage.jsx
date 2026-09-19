@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useParams, Link } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
+import BackToTop from './BackToTop'
 import {
   selectAllArticles,
   selectCategoryArticles,
@@ -50,7 +51,7 @@ function CategoryPage() {
 
   if (!isKnownCategory) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark animate-fadeIn">
         <div className="text-center">
           <h1 className="font-serif text-3xl font-bold text-text-light dark:text-text-dark mb-4">Không có chuyên mục này</h1>
           <Link to="/" className="inline-block text-accent hover:underline">
@@ -63,7 +64,7 @@ function CategoryPage() {
 
   if (loading && categoryArticles.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark animate-fadeIn">
         <div className="text-center">
           <div className="loading-spinner inline-block w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full mb-4"></div>
           <div className="loading-dots flex justify-center gap-1 mb-3">
@@ -79,7 +80,7 @@ function CategoryPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark animate-fadeIn">
         <p className="text-red-500">{error}</p>
       </div>
     )
@@ -99,26 +100,25 @@ function CategoryPage() {
   const hasMoreCategory = visibleCount < categoryArticles.length
 
   useEffect(() => {
-    if (hasMoreCategory) {
-      const sentinel = sentinelRef.current
-      if (!sentinel) return
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            setVisibleCount((prev) =>
-              Math.min(prev + CATEGORY_PAGE_SIZE, categoryArticles.length)
-            )
-          }
-        },
-        { rootMargin: '400px' }
-      )
-      observer.observe(sentinel)
-      return () => observer.disconnect()
-    }
-  }, [hasMoreCategory, categoryArticles.length])
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) =>
+            Math.min(prev + CATEGORY_PAGE_SIZE, categoryArticles.length)
+          )
+        }
+      },
+      { rootMargin: '400px' }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [categoryArticles.length])
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark animate-fadeIn">
       <Header />
       <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="mb-12">
@@ -182,10 +182,22 @@ function CategoryPage() {
                   </article>
                 ))}
               </div>
+
+              {/* Sentinel and Infinite Scroll Status */}
+              <div ref={sentinelRef} className="py-8 text-center">
+                {hasMoreCategory ? (
+                  <div>
+                    <div className="loading-spinner inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full mb-2"></div>
+                    <p className="text-text-muted-light dark:text-text-muted-dark text-sm">Đang tải thêm tin tức...</p>
+                  </div>
+                ) : (
+                  <p className="text-text-muted-light dark:text-text-muted-dark text-sm font-medium">Đã hiển thị tất cả tin tức</p>
+                )}
+              </div>
             </div>
 
             {sidebarArticles.length > 0 && (
-              <div className="lg:col-span-3">
+              <div className="hidden lg:block lg:col-span-3">
                 <div className="sticky top-10">
                   <h2 className="mb-4 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark">
                     Latest News
@@ -221,6 +233,7 @@ function CategoryPage() {
         )}
       </main>
       <Footer />
+      <BackToTop />
 
       {selectedArticle && (
         <NewsModal news={selectedArticle} onClose={() => setSelectedArticle(null)} />
@@ -230,5 +243,4 @@ function CategoryPage() {
 }
 
 export default CategoryPage
-
 export { NewsModal }

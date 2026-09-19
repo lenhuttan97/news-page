@@ -39,10 +39,11 @@ function NewsCard({ news }) {
         className="group flex flex-col gap-3 cursor-pointer"
         onClick={handleCardClick}
       >
-        <div
-          className="w-full bg-cover bg-center bg-no-repeat aspect-video rounded-lg transition-all duration-300 group-hover:scale-[1.02]"
-          style={{ backgroundImage: news.image ? `url("${news.image}")` : 'url("https://picsum.photos/seed/news-card/400/225")' }}
+        <img
+          src={news.image ? news.image : 'https://picsum.photos/seed/news-card/400/225'}
           alt={news.title}
+          loading="lazy"
+          className="w-full object-cover aspect-video rounded-lg transition-all duration-300 group-hover:scale-[1.02]"
         />
         <div className="flex flex-col gap-1">
           <p className="text-xs font-semibold uppercase tracking-wider text-accent transition-colors group-hover:text-accent/80">

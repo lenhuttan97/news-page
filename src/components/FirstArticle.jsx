@@ -10,10 +10,11 @@ function FirstArticle({ news, onOpen }) {
   return (
     <section className="mb-12 lg:mb-16">
       <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
-        <div
-          className="w-full bg-cover bg-center bg-no-repeat rounded-lg aspect-video cursor-pointer"
-          style={{ backgroundImage: news.image ? `url("${news.image}")` : 'url("https://picsum.photos/seed/news-hero/800/450")' }}
+        <img
+          src={news.image ? news.image : 'https://picsum.photos/seed/news-hero/800/450'}
           alt={news.title}
+          loading="lazy"
+          className="w-full object-cover rounded-lg aspect-video cursor-pointer"
           onClick={open}
         />
         <div className="flex flex-col items-start justify-center">
