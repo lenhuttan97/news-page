@@ -5,6 +5,10 @@ dist/
 .DS_Store
 *.local
 
+# Playwright test artifacts
+test-results/
+playwright/.test-results/
+
 # opencode config & modules
 opencode.json
 opencode.jsonc

@@ -49,6 +49,11 @@ export const { setCurrentSlug } = categorySlice.actions
 export const selectCurrentSlug = (state) => state.category.currentSlug
 // Uncached slug = never fetched yet → treat as loading (avoids flashing
 // "no articles" before the fetch thunk's pending case runs).
-export const selectCategoryEntry = (slug) => (state) =>
-  state.category.cache[slug] || { items: [], loading: true, error: null }
+// Returns `categoryLoading` (not `loading`) so it matches what
+// CategoryPage destructures: const { categoryLoading, error } = entry.
+export const selectCategoryEntry = (slug) => (state) => {
+  const cached = state.category.cache[slug]
+  if (!cached) return { items: [], categoryLoading: true, error: null }
+  return { items: cached.items, categoryLoading: cached.loading, error: cached.error }
+}
 export default categorySlice.reducer
