@@ -61,8 +61,8 @@ function Header() {
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-4">
           {/* Left: Logo */}
-          <Link className="shrink-0 flex items-center gap-2.5 text-2xl font-bold font-serif text-text-light dark:text-text-dark group" to="/">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-md group-hover:scale-105 transition-transform">
+          <Link className="shrink-0 flex items-center gap-2.5 text-2xl font-bold font-serif text-text-light dark:text-text-dark group animate-pageFadeInUp stagger-1" to="/">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-md group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
               <span className="material-symbols-outlined text-[22px]">newspaper</span>
             </div>
             <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">

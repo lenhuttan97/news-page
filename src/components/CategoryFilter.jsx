@@ -24,16 +24,16 @@ function CategoryFilter({ activeCategory, onCategoryChange }) {
           <button
             key={cat.id}
             onClick={() => onCategoryChange(cat.id)}
-            className={`group flex flex-col items-center gap-3 text-center hover:opacity-80 transition-opacity ${
+            className={`group flex flex-col items-center gap-3 text-center transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 ${
               activeCategory === cat.id
                 ? 'font-semibold text-text-light dark:text-text-dark'
                 : 'text-text-muted-light dark:text-text-muted-dark'
             }`}
           >
-            <span className="material-symbols-outlined text-4xl text-text-muted-light dark:text-text-muted-dark group-hover:text-accent transition-colors">
+            <span className="material-symbols-outlined text-4xl text-text-muted-light dark:text-text-muted-dark group-hover:text-accent group-hover:scale-110 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
               {CATEGORY_ICONS[cat.id] || 'article'}
             </span>
-            <span className="text-sm font-semibold text-balance">{cat.label}</span>
+            <span className="text-sm font-semibold text-balance group-hover:text-accent group-hover:-translate-y-0.5 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">{cat.label}</span>
           </button>
         ))}
       </div>

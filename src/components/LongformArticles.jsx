@@ -42,50 +42,50 @@ const LONGFORM_PAGE_SIZE = 6
     <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-12 lg:pb-16">
       <div className="flex flex-col space-y-8 border-t border-border-light dark:border-border-dark pt-12 lg:pt-16">
         {longformArticles.map((article, index) => (
-          <div
-            key={article.id || index}
-            onClick={() => onOpen && onOpen(article)}
-            className="group block border-b border-border-light dark:border-border-dark pb-8 cursor-pointer animate-cardAppear"
-            style={{ animationDelay: index < LONGFORM_PAGE_SIZE ? `${(index + 1) * 0.08}s` : '0s' }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
-              <div className="md:col-span-3">
-                <h3 className="font-serif text-3xl font-bold text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
-                  {article.title}
-                </h3>
-                <p className="mt-3 text-sm text-text-muted-light dark:text-text-muted-dark">
-                  {article.description}
-                </p>
-                <div className="mt-4 flex items-center justify-between">
-                  <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
-                    {article.source || 'Tổng hợp'} • {article.pubDate ? new Date(article.pubDate).toLocaleDateString('vi-VN') : ''}
+<div
+              key={article.id || index}
+              onClick={() => onOpen && onOpen(article)}
+              className="group block border-b border-border-light dark:border-border-dark pb-8 cursor-pointer animate-cardAppear hover:-translate-y-0.5 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+              style={{ animationDelay: index < LONGFORM_PAGE_SIZE ? `${Math.min((index + 1) * 0.08, 0.4)}s` : '0s' }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+                <div className="md:col-span-3">
+                  <h3 className="font-serif text-3xl font-bold text-text-light dark:text-text-dark group-hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+                    {article.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-text-muted-light dark:text-text-muted-dark">
+                    {article.description}
                   </p>
-                  <div
-                    className="flex items-center gap-4 text-text-muted-light dark:text-text-muted-dark"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button className="hover:text-accent transition-colors" title="Share">
-                      <span className="material-symbols-outlined !text-[18px]">share</span>
-                    </button>
-                    <button className="hover:text-accent transition-colors" title="Copy Link">
-                      <span className="material-symbols-outlined !text-[18px]">link</span>
-                    </button>
-                    <button className="hover:text-accent transition-colors" title="Save">
-                      <span className="material-symbols-outlined !text-[18px]">bookmark</span>
-                    </button>
-                    <button className="hover:text-accent transition-colors" title="More">
-                      <span className="material-symbols-outlined !text-[18px]">more_horiz</span>
-                    </button>
+                  <div className="mt-4 flex items-center justify-between">
+                    <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
+                      {article.source || 'Tổng hợp'} • {article.pubDate ? new Date(article.pubDate).toLocaleDateString('vi-VN') : ''}
+                    </p>
+                    <div
+                      className="flex items-center gap-4 text-text-muted-light dark:text-text-muted-dark"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button className="hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-110" title="Share">
+                        <span className="material-symbols-outlined !text-[18px]">share</span>
+                      </button>
+                      <button className="hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-110" title="Copy Link">
+                        <span className="material-symbols-outlined !text-[18px]">link</span>
+                      </button>
+                      <button className="hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-110" title="Save">
+                        <span className="material-symbols-outlined !text-[18px]">bookmark</span>
+                      </button>
+                      <button className="hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-110" title="More">
+                        <span className="material-symbols-outlined !text-[18px]">more_horiz</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
+                <div
+                  className="w-full bg-cover bg-center bg-no-repeat aspect-[4/3] rounded-lg transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.02] group-hover:shadow-lg"
+                  style={{ backgroundImage: article.image ? `url("${article.image}")` : 'none' }}
+                  alt={article.title}
+                />
               </div>
-              <div
-                className="w-full bg-cover bg-center bg-no-repeat aspect-[4/3] rounded-lg"
-                style={{ backgroundImage: article.image ? `url("${article.image}")` : 'none' }}
-                alt={article.title}
-              />
             </div>
-          </div>
         ))}
       </div>
     </section>
