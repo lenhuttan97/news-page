@@ -148,9 +148,12 @@ export default function HomePage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
         <p className="text-red-500">{error}</p>
-      </div>
-    )
-  }
+       {selectedArticle && (
+         <NewsModal news={selectedArticle} onClose={() => setSelectedArticle(null)} />
+       )}
+     </div>
+   )
+}
 
   return (
     <div>
@@ -259,7 +262,7 @@ export default function HomePage() {
         <CategoryGrid />
       </section>
 
-      {/* Longform Articles section with infinite scroll */}
+       {/* Longform Articles section with infinite scroll */}
       <section className="mb-12 lg:mb-16 animate-pageFadeInUp stagger-4">
         <LongformArticles articles={longformVisible} onOpen={setSelectedArticle} />
         <div ref={sentinelRef} className="h-8 flex items-center justify-center py-0 m-0">
@@ -276,6 +279,10 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {selectedArticle && (
+        <NewsModal news={selectedArticle} onClose={() => setSelectedArticle(null)} />
+      )}
     </div>
   )
 }

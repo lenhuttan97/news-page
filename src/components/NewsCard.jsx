@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import NewsModal from './NewsModal'
+import React from 'react'
 import { NEWS_CATEGORIES } from '../data/rssData'
 
 function getCategoryLabel(id) {
@@ -7,9 +6,8 @@ function getCategoryLabel(id) {
   return found ? found.label : id
 }
 
-function NewsCard({ news }) {
+function NewsCard({ news, onOpen }) {
   if (!news) return null
-  const [isOpen, setIsOpen] = useState(false)
 
   const formatRelativeTime = (pubDate) => {
     if (!pubDate) return ''
@@ -26,11 +24,7 @@ function NewsCard({ news }) {
   }
 
   const handleCardClick = () => {
-    setIsOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsOpen(false)
+    if (onOpen) onOpen(news)
   }
 
   return (
@@ -57,8 +51,6 @@ function NewsCard({ news }) {
           </p>
         </div>
       </article>
-
-      {isOpen && <NewsModal news={news} onClose={closeModal} />}
     </div>
   )
 }

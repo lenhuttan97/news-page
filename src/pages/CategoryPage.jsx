@@ -222,9 +222,11 @@ function CategoryPage() {
           </Link>
         </div>
       )}
+{selectedArticle && (
+        <NewsModal news={selectedArticle} onClose={() => setSelectedArticle(null)} />
+      )}
     </div>
   )
 }
 
 export default CategoryPage
-export { NewsModal }
