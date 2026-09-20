@@ -1,15 +1,18 @@
-import { configureStore } from '@reduxjs/toolkit';
-import newsReducer from './newsSlice';
-import themeReducer, { applyThemeClass, listenToThemeChanges } from './themeSlice';
+import { configureStore } from '@reduxjs/toolkit'
+import homeReducer, { fetchNews } from './homeSlice'
+import categoryReducer from './categorySlice'
+import themeReducer, { applyThemeClass, listenToThemeChanges } from './themeSlice'
 
 const store = configureStore({
   reducer: {
-    news: newsReducer,
+    home: homeReducer,
+    category: categoryReducer,
     theme: themeReducer,
   },
-});
+})
 
-applyThemeClass(store.getState().theme.resolved);
-listenToThemeChanges(store);
+applyThemeClass(store.getState().theme.resolved)
+listenToThemeChanges(store)
 
-export default store;
+export { fetchNews }
+export default store

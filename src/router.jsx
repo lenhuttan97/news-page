@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom'
-import App from './App'
-import CategoryPage from './components/CategoryPage'
+import PageLayout from './layout/PageLayout'
+import HomePage from './pages/HomePage'
+import CategoryPage from './pages/CategoryPage'
 import ErrorPage from './components/ErrorPage'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -9,7 +10,9 @@ export const router = createBrowserRouter([
     path: '/',
     element: (
       <ErrorBoundary>
-        <App />
+        <PageLayout>
+          <HomePage />
+        </PageLayout>
       </ErrorBoundary>
     ),
     errorElement: <ErrorPage />,
@@ -18,7 +21,9 @@ export const router = createBrowserRouter([
     path: '/category/:slug',
     element: (
       <ErrorBoundary>
-        <CategoryPage />
+        <PageLayout>
+          <CategoryPage />
+        </PageLayout>
       </ErrorBoundary>
     ),
     errorElement: <ErrorPage />,
