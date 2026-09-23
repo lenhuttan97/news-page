@@ -44,11 +44,13 @@ function NewsModal({ news, onClose }) {
         </button>
 
         {news.image && (
-          <img
-            src={news.image}
-            alt={news.title}
-            className="mb-6 h-64 w-full rounded-t-xl object-cover transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.01]"
-          />
+          <div className="mb-6 overflow-hidden rounded-t-xl">
+            <img
+              src={news.image}
+              alt={news.title}
+              className="h-64 w-full object-cover"
+            />
+          </div>
         )}
 
         <div className="p-6">
