@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 import { NEWS_CATEGORIES } from '../data/rssData.js'
 import { setMode, selectThemeMode, selectThemeResolved } from '../store/themeSlice'
+import { fetchNews } from '../store'
 
 const THEME_OPTIONS = [
   { value: 'light', label: 'Sáng', icon: 'light_mode' },
@@ -61,7 +62,14 @@ function Header() {
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-4">
           {/* Left: Logo */}
-          <Link className="shrink-0 flex items-center gap-2.5 text-2xl font-bold font-serif text-text-light dark:text-text-dark group animate-pageFadeInUp stagger-1" to="/">
+          <Link
+            to="/"
+            onClick={() => {
+              dispatch(fetchNews())
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            className="shrink-0 flex items-center gap-2.5 text-2xl font-bold font-serif text-text-light dark:text-text-dark group animate-pageFadeInUp stagger-1"
+          >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-md group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
               <span className="material-symbols-outlined text-[22px]">newspaper</span>
             </div>
