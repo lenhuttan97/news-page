@@ -146,202 +146,146 @@ h1, h2, h3, h4 {
   }
 }
 
-/* Modal animations */
+/* ==========================================
+   Motion Design System
+   Personality: Corporate (clean, professional)
+   Primary easing: cubic-bezier(0.4, 0, 0.2, 1) (Material Design 3 standard)
+   Duration palette: Quick 150ms / Standard 300ms / Slow 500ms
+   Three layers: primary motion + secondary depth + ambient life
+   ========================================== */
+
+/* Brand motion identity constants */
+:root {
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --duration-quick: 150ms;
+  --duration-standard: 300ms;
+  --duration-slow: 500ms;
+}
+
+/* Entrance animations — ease-out deceleration for natural feel */
+
 @keyframes modalFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-modalFadeIn {
+  animation: modalFadeIn var(--duration-standard) var(--motion-ease) forwards;
 }
 
 @keyframes modalScaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.94) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
-
-/* Loading page animations */
-@keyframes loadingPulse {
-  0%, 100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-@keyframes loadingDots {
-  0%, 20% {
-    opacity: 0.2;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-4px);
-  }
-  80%, 100% {
-    opacity: 0.2;
-    transform: translateY(0);
-  }
-}
-
-.loading-dots span {
-  animation: loadingDots 1.4s infinite;
-  display: inline-block;
-}
-
-.loading-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.loading-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-.loading-spinner {
-  animation: loadingPulse 1.2s ease-in-out infinite;
-}
-
-.animate-modalFadeIn {
-  animation: modalFadeIn 0.3s ease-out forwards;
-}
-
 .animate-modalScaleIn {
-  animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: modalScaleIn var(--duration-standard) var(--motion-ease) forwards;
 }
 
-/* Hide horizontal scrollbar on scrollable nav rows */
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Card appear — three motion layers: primary (translate), secondary (scale), depth (shadow via scale) */
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+.animate-cardAppear {
+  animation: cardAppear var(--duration-standard) var(--motion-ease) forwards;
+}
+
+/* Hero entrance — primary motion (translateY) with secondary scale */
+@keyframes heroSlideIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-heroSlideIn {
+  animation: heroSlideIn 0.6s var(--motion-ease) forwards;
+  opacity: 0;
+}
+
+/* Page load stagger — primary motion */
+@keyframes pageFadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-pageFadeInUp {
+  animation: pageFadeInUp 0.5s var(--motion-ease) forwards;
+  opacity: 0;
+}
+
+/* Nav link entrance */
+@keyframes navLinkIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-navLinkIn {
+  animation: navLinkIn var(--duration-standard) var(--motion-ease) forwards;
+  opacity: 0;
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 .animate-fadeIn {
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn var(--duration-standard) var(--motion-ease) forwards;
 }
 
-/* Page load stagger animation */
-@keyframes pageFadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ==========================================
+   Micro-interactions (hover / press / focus)
+   ========================================== */
+
+/* Button press feedback */
+.btn-press {
+  transition: transform var(--duration-quick) var(--motion-ease);
+}
+.btn-press:active {
+  transform: scale(0.98);
 }
 
-.animate-pageFadeInUp {
-  animation: pageFadeInUp 0.5s ease-out forwards;
-  opacity: 0;
+/* Smooth link underline — already in .link-underline */
+.link-underline {
+  transition: color var(--duration-standard) var(--motion-ease);
 }
 
-/* Stagger delays for children */
+/* ==========================================
+   Loading animations
+   ========================================== */
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.loading-spinner {
+  animation: loadingPulse 1.2s var(--motion-ease) infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { opacity: 0.2; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-4px); }
+  80%, 100% { opacity: 0.2; transform: translateY(0); }
+}
+.loading-dots span {
+  animation: loadingDots 1.4s var(--motion-ease) infinite;
+  display: inline-block;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Stagger budget — max total < 500ms */
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.1s; }
 .stagger-3 { animation-delay: 0.15s; }
 .stagger-4 { animation-delay: 0.2s; }
 .stagger-5 { animation-delay: 0.25s; }
 .stagger-6 { animation-delay: 0.3s; }
-.stagger-7 { animation-delay: 0.35s; }
-.stagger-8 { animation-delay: 0.4s; }
-.stagger-9 { animation-delay: 0.45s; }
-.stagger-10 { animation-delay: 0.5s; }
 
-/* Card appear animation */
-@keyframes cardAppear {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.98);
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-cardAppear {
-  animation: cardAppear 0.4s ease-out forwards;
-  opacity: 0;
-}
-
-/* Hero section animation */
-@keyframes heroSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-heroSlideIn {
-  animation: heroSlideIn 0.6s ease-out forwards;
-  opacity: 0;
-}
-
-/* Nav link animation */
-@keyframes navLinkIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-navLinkIn {
-  animation: navLinkIn 0.3s ease-out forwards;
-  opacity: 0;
-}
-
-/* Skeleton pulse removal - static skeleton */
-.skeleton-static {
-  animation: none;
-}
-
-/* Loading dots animation for infinite scroll */
-@keyframes loadingDotPulse {
-  0%, 80%, 100% {
-    transform: scale(1);
-    opacity: 0.4;
-  }
-  40% {
-    transform: scale(1.3);
-    opacity: 1;
-  }
-}
-
-.loading-dot {
-  animation: loadingDotPulse 1.2s ease-in-out infinite;
-}
-
-.loading-dot-2 {
-  animation-delay: 0.15s;
-}
-
-.loading-dot-3 {
-  animation-delay: 0.3s;
+  html { scroll-behavior: auto; }
 }

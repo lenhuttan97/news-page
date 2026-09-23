@@ -35,7 +35,7 @@ function NewsModal({ news, onClose }) {
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 rounded-full bg-white/90 p-1.5 text-gray-600 transition-colors duration-200 hover:bg-gray-100 dark:bg-background-dark/90 dark:text-gray-300 dark:hover:bg-background-dark shadow-md cursor-pointer"
+          className="absolute top-4 right-4 z-10 rounded-full bg-white/90 p-1.5 text-gray-600 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-gray-100 dark:bg-background-dark/90 dark:text-gray-300 dark:hover:bg-background-dark shadow-md cursor-pointer hover:scale-110 active:scale-95"
           aria-label="Đóng modal"
         >
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,11 +44,13 @@ function NewsModal({ news, onClose }) {
         </button>
 
         {news.image && (
-          <img
-            src={news.image}
-            alt={news.title}
-            className="mb-6 h-64 w-full rounded-t-xl object-cover"
-          />
+          <div className="mb-6 overflow-hidden rounded-t-xl">
+            <img
+              src={news.image}
+              alt={news.title}
+              className="h-64 w-full object-cover"
+            />
+          </div>
         )}
 
         <div className="p-6">
@@ -71,7 +73,7 @@ function NewsModal({ news, onClose }) {
           <div className="flex items-center justify-between gap-4 border-t border-border-light pt-4 dark:border-border-dark">
             <button
               onClick={onClose}
-              className="font-medium text-sm text-accent transition-colors duration-200 hover:text-accent/80 cursor-pointer"
+              className="font-medium text-sm text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:text-accent/80 cursor-pointer hover:-translate-y-0.5"
             >
               Đóng
             </button>
@@ -79,7 +81,7 @@ function NewsModal({ news, onClose }) {
               href={news.link || news.url || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 font-medium text-white transition-colors duration-200 hover:bg-primary/90"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 font-medium text-white transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-primary/90 hover:-translate-y-0.5 active:scale-95"
             >
               Đọc thêm
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

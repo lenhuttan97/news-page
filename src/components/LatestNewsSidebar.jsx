@@ -14,8 +14,8 @@ function LatestNewsSidebar() {
       </h2>
       <div className="flex flex-col space-y-4">
         {latestNews.map((item, index) => (
-          <a key={index} href="#" className="group">
-            <p className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
+          <a key={index} href="#" className="group block animate-cardAppear" style={{ animationDelay: `${Math.min(index * 0.06, 0.3)}s` }}>
+            <p className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-x-1">
               {item.title}
             </p>
             <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
