@@ -1,9 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { fetchCategoryNews as fetchCategoryRSS } from '../data/rssData'
+import * as rss from '../data/rssData'
+import * as supabase from '../data/supabaseData'
+import { setDataSource } from './settingsSlice'
 
 export const fetchCategoryNews = createAsyncThunk(
   'category/fetchCategoryNews',
-  async (categoryId) => await fetchCategoryRSS(categoryId)
+  async (categoryId, { getState }) => {
+    const source = getState().settings.dataSource === 'supabase' ? supabase : rss
+    return await source.fetchCategoryNews(categoryId)
+  }
 )
 
 const initialState = {
@@ -21,23 +26,28 @@ const categorySlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // New source → drop every cached category; pages refetch.
+      .addCase(setDataSource, (state) => {
+        state.cache = {}
+      })
       .addCase(fetchCategoryNews.pending, (state, action) => {
         const slug = action.meta.arg
         const entry = state.cache[slug] || { items: [], loading: false, error: null }
         entry.loading = true
         entry.error = null
+        entry.requestId = action.meta.requestId
         state.cache[slug] = entry
       })
       .addCase(fetchCategoryNews.fulfilled, (state, action) => {
         const entry = state.cache[action.meta.arg]
-        if (entry) {
+        if (entry?.requestId === action.meta.requestId) {
           entry.loading = false
           entry.items = action.payload
         }
       })
       .addCase(fetchCategoryNews.rejected, (state, action) => {
         const entry = state.cache[action.meta.arg]
-        if (entry) {
+        if (entry?.requestId === action.meta.requestId) {
           entry.loading = false
           entry.error = action.error.message || 'Lỗi tải dữ liệu'
         }

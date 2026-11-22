@@ -3,12 +3,18 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 import { NEWS_CATEGORIES } from '../data/rssData.js'
 import { setMode, selectThemeMode, selectThemeResolved } from '../store/themeSlice'
+import { setDataSource, selectDataSource, setMixSources, selectMixSources } from '../store/settingsSlice'
 import { fetchNews } from '../store'
 
 const THEME_OPTIONS = [
   { value: 'light', label: 'Sáng', icon: 'light_mode' },
   { value: 'dark', label: 'Tối', icon: 'dark_mode' },
   { value: 'system', label: 'Theo hệ thống', icon: 'brightness_auto' },
+]
+
+const SOURCE_OPTIONS = [
+  { value: 'rss', label: 'RSS trực tiếp', short: 'RSS', icon: 'rss_feed' },
+  { value: 'supabase', label: 'Tafu Hub', short: 'Tafu Hub', icon: 'database' },
 ]
 
 const PROMINENT_CATEGORY_IDS = ['tin-tuc', 'giao-duc', 'the-thao', 'kinh-te', 'suc-khoe', 'doi-song']
@@ -18,12 +24,16 @@ function Header() {
   const location = useLocation()
   const mode = useSelector(selectThemeMode)
   const resolved = useSelector(selectThemeResolved)
+  const dataSource = useSelector(selectDataSource)
+  const mix = useSelector(selectMixSources)
   
   const [themeOpen, setThemeOpen] = useState(false)
+  const [sourceOpen, setSourceOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const themeRef = useRef(null)
+  const sourceRef = useRef(null)
   const moreRef = useRef(null)
   const mobileRef = useRef(null)
 
@@ -38,6 +48,9 @@ function Header() {
     const onPointerDown = (event) => {
       if (themeRef.current && !themeRef.current.contains(event.target)) {
         setThemeOpen(false)
+      }
+      if (sourceRef.current && !sourceRef.current.contains(event.target)) {
+        setSourceOpen(false)
       }
       if (moreRef.current && !moreRef.current.contains(event.target)) {
         setMoreOpen(false)
@@ -159,6 +172,66 @@ function Header() {
                       {cat.label}
                     </Link>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Data Source Toggle (saved in localStorage) */}
+            <div className="relative" ref={sourceRef}>
+              <button
+                onClick={() => setSourceOpen((open) => !open)}
+                className="flex h-10 cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-text-muted-light dark:text-text-muted-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                title="Cài đặt: nguồn dữ liệu"
+                aria-label="Nguồn dữ liệu"
+                aria-haspopup="menu"
+                aria-expanded={sourceOpen}
+              >
+                <span className="material-symbols-outlined">settings</span>
+                <span className="hidden sm:inline text-xs font-semibold">
+                  {SOURCE_OPTIONS.find((option) => option.value === dataSource)?.short}
+                </span>
+              </button>
+              {sourceOpen && (
+                <div role="menu" aria-label="Nguồn dữ liệu" className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark p-2 shadow-lg animate-fadeIn z-50">
+                  <p className="px-3 pt-1 pb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark">
+                    Nguồn dữ liệu
+                  </p>
+                  {SOURCE_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      role="menuitemradio"
+                      aria-checked={dataSource === option.value}
+                      onClick={() => {
+                        if (dataSource !== option.value) dispatch(setDataSource(option.value))
+                        setSourceOpen(false)
+                      }}
+                      className="flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{option.icon}</span>
+                      {option.label}
+                      <span className="ml-auto material-symbols-outlined text-[18px] text-accent">
+                        {dataSource === option.value ? 'check_circle' : 'radio_button_unchecked'}
+                      </span>
+                    </button>
+                  ))}
+                  <div className="my-2 border-t border-border-light dark:border-border-dark" />
+                  <button
+                    role="menuitemcheckbox"
+                    aria-checked={mix}
+                    onClick={() => dispatch(setMixSources(!mix))}
+                    className="flex w-full cursor-pointer items-start gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">shuffle</span>
+                    <span className="flex-1">
+                      Trộn nguồn tin
+                      <span className="block text-xs font-normal text-text-muted-light dark:text-text-muted-dark">
+                        Không để quá 2 bài cùng báo liền nhau
+                      </span>
+                    </span>
+                    <span className="material-symbols-outlined text-[18px] text-accent">
+                      {mix ? 'toggle_on' : 'toggle_off'}
+                    </span>
+                  </button>
                 </div>
               )}
             </div>

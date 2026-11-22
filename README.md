@@ -9,6 +9,7 @@ A sleek, lightning-fast, and responsive daily news application built with **Reac
 - **Rich News Feed**: Explore featured articles, top breaking news, editorial picks, and longform reads.
 - **Category Browsing**: Dedicated category pages and filters for Technology, Business, Sports, Lifestyle, and more with paginated or infinite scroll experiences.
 - **Live RSS Integration**: Seamlessly fetches and parses RSS feeds via local proxy middleware (`/api/rss`).
+- **Tafu Hub data source**: Switch (⚙️ in the header) between live RSS and the stories that [mini_crawler](https://github.com/lenhuttan97/mini_crawler) mirrors to Supabase. Stories open with their full text and a photo slideshow. The choice, and an optional "mix sources" ordering (at most 2 articles from one outlet in a row), are saved in `localStorage`.
 - **Interactive Modals & Article Details**: Read full articles in immersive detail pages or pop-up news modals.
 - **Dark / Light Mode**: Fully supports theme switching utilizing Tailwind CSS classes.
 - **Robust UI/UX**: Includes loading skeleton states, error boundaries, back-to-top navigation, and responsive mobile-first layouts.
@@ -68,6 +69,13 @@ Ensure you have **Node.js 18+** installed on your machine.
    npm install
    ```
 
+3. (Optional) Enable the Tafu Hub data source. Create `.env.local` (git-ignored):
+   ```bash
+   SUPABASE_URL=https://<project-ref>.supabase.co
+   SUPABASE_SECRET_KEY=sb_secret_...
+   ```
+   Use a **secret** key: mini_crawler's tables have row level security with no policies, so a publishable key reads nothing. The key is used only by the server-side proxy (`/api/supabase`) and never reaches the browser — do not prefix it with `VITE_`. Without these variables the RSS source keeps working and Tafu Hub shows a load error.
+
 ---
 
 ## 🚀 Running the Application
@@ -97,7 +105,7 @@ npm run preview
 
 This project is configured for deployment on modern static hosting platforms like **Vercel** or **Netlify**.
 
-- **Vercel**: Simply link your GitHub repository to Vercel. The included `vercel.json` ensures smooth routing and serverless function routing for RSS feeds.
+- **Vercel**: Simply link your GitHub repository to Vercel. The included `vercel.json` ensures smooth routing and serverless function routing for RSS feeds. For Tafu Hub, add `SUPABASE_URL` and `SUPABASE_SECRET_KEY` as Vercel environment variables.
 - **Manual Build**: Run `npm run build` and deploy the `dist/` directory to your hosting provider of choice.
 
 ---

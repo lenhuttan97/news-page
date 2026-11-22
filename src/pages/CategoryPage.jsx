@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useParams, Link } from 'react-router-dom'
 import SkeletonLoader from '../components/SkeletonLoader'
 import { useLoadingTimer } from '../hooks/useLoadingTimer'
 import { selectAllArticles, fetchNews } from '../store/homeSlice'
 import { selectCategoryEntry, fetchCategoryNews } from '../store/categorySlice'
+import { selectDataSource, selectMixSources } from '../store/settingsSlice'
+import { mixSources } from '../data/mixSources'
 import { NEWS_CATEGORIES } from '../data/rssData'
 import NewsModal from '../components/NewsModal'
 
@@ -18,9 +20,21 @@ function CategoryPage() {
   const dispatch = useDispatch()
   const categoryEntry = useSelector(selectCategoryEntry(slug))
   const { categoryLoading, error } = categoryEntry
-  const categoryArticles = categoryEntry.items || []
+  const mix = useSelector(selectMixSources)
+  const fetchedArticles = categoryEntry.items
+  const categoryArticles = useMemo(
+    () => (mix ? mixSources(fetchedArticles || []) : fetchedArticles || []),
+    [fetchedArticles, mix],
+  )
   const isShowingLoading = useLoadingTimer(categoryLoading)
   const allArticles = useSelector(selectAllArticles)
+  // The sidebar shows home's feed: load it when nothing has requested it yet
+  // (direct visit to a category, or the data source was just switched here).
+  const homeRequested = useSelector((state) => state.home.requestId !== null)
+  useEffect(() => {
+    if (!homeRequested) dispatch(fetchNews())
+  }, [dispatch, homeRequested])
+  const dataSource = useSelector(selectDataSource)
 
   const isKnownCategory = NEWS_CATEGORIES.some((cat) => cat.id === slug)
 
@@ -33,7 +47,7 @@ function CategoryPage() {
     if (isKnownCategory && slug !== 'all') {
       dispatch(fetchCategoryNews(slug))
     }
-  }, [dispatch, slug, isKnownCategory])
+  }, [dispatch, slug, isKnownCategory, dataSource])
 
   useEffect(() => {
     setVisibleCount(CATEGORY_PAGE_SIZE)
