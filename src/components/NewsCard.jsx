@@ -30,20 +30,20 @@ function NewsCard({ news, onOpen }) {
   return (
     <div>
       <article
-        className="group flex flex-col gap-3 cursor-pointer"
+        className="group flex flex-col gap-3 cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-lg"
         onClick={handleCardClick}
       >
         <img
           src={news.image ? news.image : 'https://picsum.photos/seed/news-card/400/225'}
           alt={news.title}
           loading="lazy"
-          className="w-full object-cover aspect-video rounded-lg transition-all duration-300 group-hover:scale-[1.02]"
+          className="w-full object-cover aspect-video rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.03] group-hover:shadow-md"
         />
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-accent transition-colors group-hover:text-accent/80">
+          <p className="text-xs font-semibold uppercase tracking-wider text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:text-accent/80">
             {getCategoryLabel(news.category)}
           </p>
-          <p className="text-lg font-semibold leading-tight text-text-light dark:text-text-dark group-hover:text-accent transition-colors duration-300">
+          <p className="text-lg font-semibold leading-tight text-text-light dark:text-text-dark group-hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
             {news.title}
           </p>
           <p className="text-xs text-text-muted-light dark:text-text-muted-dark">

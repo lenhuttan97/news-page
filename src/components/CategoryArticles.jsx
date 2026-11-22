@@ -15,11 +15,11 @@ function CategoryArticles({ articles, onOpen }) {
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
         {articles.map((article, index) => (
           <div key={article?.id || index} className="flex flex-col gap-3 border-r border-border-light dark:border-border-dark last:border-r-0 pr-8">
-            <Link to={`/category/${article?.category}`} className="text-xs font-semibold uppercase tracking-wider text-accent hover:text-accent/80 transition-colors">
+            <Link to={`/category/${article?.category}`} className="text-xs font-semibold uppercase tracking-wider text-accent hover:text-accent/80 transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
               {getCategoryLabel(article?.category)}
             </Link>
-            <button onClick={() => onOpen && onOpen(article)} className="group text-left">
-              <h3 className="text-lg font-semibold leading-tight text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
+            <button onClick={() => onOpen && onOpen(article)} className="group text-left hover:-translate-y-0.5 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+              <h3 className="text-lg font-semibold leading-tight text-text-light dark:text-text-dark group-hover:text-accent transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
                 {article?.title}
               </h3>
             </button>
