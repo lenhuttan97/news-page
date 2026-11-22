@@ -7,6 +7,8 @@ import CategoryGrid from '../components/CategoryGrid'
 import LongformArticles from '../components/LongformArticles'
 import NewsModal from '../components/NewsModal'
 import { fetchNews } from '../store'
+import { selectDataSource, selectMixSources } from '../store/settingsSlice'
+import { mixSources } from '../data/mixSources'
 import { NEWS_CATEGORIES } from '../data/rssData.js'
 
 const FIRST_ARTICLE_COUNT = 1
@@ -20,14 +22,17 @@ function getCategoryLabel(id) {
 
 export default function HomePage() {
   const dispatch = useDispatch()
-  const { items, loading, error } = useSelector((state) => state.home)
+  const { items: fetchedItems, loading, error } = useSelector((state) => state.home)
+  const mix = useSelector(selectMixSources)
+  const items = useMemo(() => (mix ? mixSources(fetchedItems) : fetchedItems), [fetchedItems, mix])
+  const dataSource = useSelector(selectDataSource)
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [visibleLongform, setVisibleLongform] = useState(LONGFORM_PAGE_SIZE)
   const sentinelRef = useRef(null)
 
   useEffect(() => {
     dispatch(fetchNews())
-  }, [dispatch])
+  }, [dispatch, dataSource])
 
   // State management for article groups - ensures no overlap
   const articleGroups = useMemo(() => {
@@ -118,27 +123,28 @@ export default function HomePage() {
     return () => observer.disconnect()
   }, [hasMoreLongform, articleGroups.longformPool.length, visibleLongform])
 
-  // Prepare category articles data for Browse by Category columns
+  // Browse by Category columns: one real article per category, never repeated.
+  // Prefer articles not already shown higher up the page; skip empty categories.
   const categoryArticles = useMemo(() => {
-    return NEWS_CATEGORIES.filter(cat => cat.id !== 'all').map(cat => {
-      const matchingArticle = articleGroups.browseCategoryArticles.find(
-        article => article.category && article.category.toLowerCase() === cat.id
-      ) || articleGroups.featuredArticles.find(
-        article => article.category && article.category.toLowerCase() === cat.id
-      ) || articleGroups.firstArticles[0] || items[0]
-
-      return {
-        id: matchingArticle?.id || `${cat.id}-${Math.random()}`,
-        title: matchingArticle?.title || `${cat.label} News`,
-        description: matchingArticle?.description || '',
-        link: matchingArticle?.link || '#',
-        category: matchingArticle?.category || cat.id,
-        source: matchingArticle?.source || '',
-        pubDate: matchingArticle?.pubDate || new Date().toISOString(),
-        image: matchingArticle?.image,
-      }
-    })
-  }, [articleGroups, items])
+    const candidates = [
+      ...articleGroups.browseCategoryArticles,
+      ...articleGroups.longformPool,
+      ...articleGroups.featuredArticles,
+      ...articleGroups.firstArticles,
+    ]
+    const usedIds = new Set()
+    const picked = []
+    for (const cat of NEWS_CATEGORIES) {
+      if (cat.id === 'all') continue
+      const article = candidates.find(
+        (item) => item.category?.toLowerCase() === cat.id && !usedIds.has(item.id),
+      )
+      if (!article) continue
+      usedIds.add(article.id)
+      picked.push(article)
+    }
+    return picked
+  }, [articleGroups])
 
   if (loading && items.length === 0) {
     return <SkeletonLoader />
@@ -207,7 +213,7 @@ export default function HomePage() {
             <div className="flex flex-col space-y-4">
               {categoryArticles.slice(0, 4).map((article, index) => (
                 <button
-                  key={article.id || index}
+                  key={article.id}
                   onClick={() => setSelectedArticle(article)}
                   className="group text-left block w-full animate-cardAppear"
                   style={{ animationDelay: `${(index + 1) * 0.06}s` }}
@@ -239,13 +245,13 @@ export default function HomePage() {
             <div className="flex flex-col space-y-4">
               {categoryArticles.slice(4, 8).map((article, index) => (
                 <button
-                  key={article.id || index}
+                  key={article.id}
                   onClick={() => setSelectedArticle(article)}
                   className="group text-left block w-full animate-cardAppear"
                   style={{ animationDelay: `${(index + 1) * 0.06}s` }}
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1">
-                    {article.category}
+                    {getCategoryLabel(article.category)}
                   </p>
                   <h4 className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors line-clamp-2">
                     {article.title}

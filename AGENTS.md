@@ -22,10 +22,8 @@ npm run preview
 ```
 
 ### Testing
-```bash
-# Run tests (if any)
-npm test
-```
+There is no automated test suite (Playwright was removed). Verify with
+`npm run build` plus a manual check in the browser.
 
 ### Deployment
 ```bash
@@ -85,17 +83,12 @@ npm run build
    # Visit http://localhost:3000
    ```
 
-2. **Running Tests**
-   ```bash
-   npm test
-   ```
-
-3. **Building for Production**
+2. **Building for Production**
    ```bash
    npm run build
    ```
 
-4. **Preview Build**
+3. **Preview Build**
    ```bash
    npm run preview
    ```
@@ -124,9 +117,16 @@ npm run build
 - Vite 5.x
 - React Router 7.x
 - Redux Toolkit 2.x
+- Optional, server-side only: `SUPABASE_URL`, `SUPABASE_SECRET_KEY` in `.env.local`
+  (and Vercel env vars) for the Tafu Hub data source
 
 ## Notes
 - The project uses a local RSS proxy (`/api/rss`) for fetching news
+- `/api/supabase` (Vercel function in `api/supabase.js`, reused by the Vite dev
+  middleware) reads mini_crawler's Supabase tables with `SUPABASE_URL` +
+  `SUPABASE_SECRET_KEY` from `.env.local`; `?id=<uuid>` returns one story's full
+  text and images. The data source (`dataSource`) and `mixSources` settings live
+  in `src/store/settingsSlice.js` and are persisted in `localStorage`
 - All article data is loaded from `src/data/` modules
 - No database layer - pure client-side state management
 - Dark mode is implemented via Tailwind CSS `dark:` prefix

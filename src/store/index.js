@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import homeReducer, { fetchNews } from './homeSlice'
 import categoryReducer from './categorySlice'
+import settingsReducer from './settingsSlice'
 import themeReducer, { applyThemeClass, listenToThemeChanges } from './themeSlice'
 
 const store = configureStore({
@@ -8,6 +9,7 @@ const store = configureStore({
     home: homeReducer,
     category: categoryReducer,
     theme: themeReducer,
+    settings: settingsReducer,
   },
 })
 

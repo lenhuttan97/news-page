@@ -293,7 +293,7 @@ const CATEGORY_KEYWORDS = [
   },
 ];
 
-function categorizeNews(title) {
+export function categorizeNews(title) {
   const lowerTitle = title.toLowerCase();
   for (const { id, keywords } of CATEGORY_KEYWORDS) {
     if (keywords.some((word) => lowerTitle.includes(word))) return id;
