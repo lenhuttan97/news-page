@@ -9,6 +9,7 @@ proxy on Vercel.
 image URLs with Dân Trí's source referrer, rejects redirects, and caps response
 size. A small client helper rewrites only displayed Dân Trí images to that
 endpoint. API routes run before the SPA fallback.
+Static assets are served in Vercel's filesystem phase before that fallback.
 
 **Tech Stack:** Vercel serverless functions, React 18, Node built-in test runner.
 

@@ -37,7 +37,8 @@ origin as a hotlink referrer.
   Trí HTTPS image URLs. Rendering components use it at the `<img>` boundary,
   preserving raw URLs for links and carousel de-duplication.
 - `vercel.json` changes the SPA fallback to exclude `/api`, so `rss`,
-  `supabase`, and `image` functions remain routable.
+  `supabase`, and `image` functions run first; its filesystem phase serves
+  built assets before the fallback.
 - A Node built-in test covers proxy URL formatting plus API validation,
   unavailable upstreams, and valid image forwarding.
 
