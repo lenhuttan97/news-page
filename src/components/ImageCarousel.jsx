@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import { imageProxyUrl } from '../data/imageProxy'
 
 const SWIPE_PX = 40
 
@@ -54,7 +55,7 @@ function ImageCarousel({ images, title }) {
       >
         <img
           key={current.url}
-          src={current.url}
+          src={imageProxyUrl(current.url)}
           alt={current.alt || current.caption || title}
           draggable={false}
           className="h-full w-full object-contain carousel-fade"
@@ -96,7 +97,7 @@ function ImageCarousel({ images, title }) {
                 i === index ? 'ring-2 ring-primary ring-offset-2 ring-offset-background-light dark:ring-offset-background-dark' : 'opacity-60 hover:opacity-100'
               }`}
             >
-              <img src={image.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+              <img src={imageProxyUrl(image.url)} alt="" loading="lazy" className="h-full w-full object-cover" />
             </button>
           ))}
         </div>

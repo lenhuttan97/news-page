@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import { sendImage } from './api/image.js'
 import { sendStories } from './api/supabase.js'
 
 export default defineConfig(({ mode }) => ({
@@ -47,6 +48,14 @@ export default defineConfig(({ mode }) => ({
         })
       },
     },
+      {
+        name: 'image-proxy',
+        configureServer(server) {
+          server.middlewares.use('/api/image', (req, res) => {
+            sendImage(res, new URL(req.url, 'http://localhost').searchParams.get('url'))
+          })
+        },
+      },
   ],
   server: {
     host: '0.0.0.0',
