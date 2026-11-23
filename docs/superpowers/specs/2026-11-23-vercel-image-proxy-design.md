@@ -24,15 +24,15 @@ origin as a hotlink referrer.
    the Vercel referrer.
 2. Proxy every external image host: rejected because an unauthenticated,
    arbitrary-URL proxy is an SSRF and resource-exhaustion risk.
-3. Proxy Dân Trí images through `/api/image`: selected. The server request has
-   no browser referrer, while the endpoint permits only the reported Dân Trí
-   CDN host and validates the response.
+3. Proxy Dân Trí images through `/api/image`: selected. The server request uses
+   Dân Trí's source referrer, while the endpoint permits only the reported Dân
+   Trí CDN host and validates the response.
 
 ## Design
 
-- `api/image.js` accepts `GET /api/image?url=<https Dân Trí CDN URL>`, rejects
-  redirects, validates the response, and returns only successful `image/*`
-  bodies no larger than 4 MiB.
+- `api/image.js` accepts `GET /api/image?url=<https Dân Trí CDN URL>`, sends
+  `Referer: https://dantri.com.vn/`, rejects redirects, validates the response,
+  and returns only successful `image/*` bodies no larger than 4 MiB.
 - `src/data/imageProxy.js` produces an `/api/image` URL only for approved Dân
   Trí HTTPS image URLs. Rendering components use it at the `<img>` boundary,
   preserving raw URLs for links and carousel de-duplication.

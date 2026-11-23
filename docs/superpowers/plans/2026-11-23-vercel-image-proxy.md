@@ -6,9 +6,9 @@
 proxy on Vercel.
 
 **Architecture:** A serverless image endpoint fetches validated Dân Trí HTTPS
-image URLs without a browser referrer, rejects redirects, and caps response
+image URLs with Dân Trí's source referrer, rejects redirects, and caps response
 size. A small client helper rewrites only displayed Dân Trí images to that
-endpoint. The SPA rewrite excludes all API routes.
+endpoint. API routes run before the SPA fallback.
 
 **Tech Stack:** Vercel serverless functions, React 18, Node built-in test runner.
 
