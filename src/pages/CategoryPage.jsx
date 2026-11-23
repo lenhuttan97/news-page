@@ -8,6 +8,7 @@ import { selectCategoryEntry, fetchCategoryNews } from '../store/categorySlice'
 import { selectDataSource, selectMixSources } from '../store/settingsSlice'
 import { mixSources } from '../data/mixSources'
 import { NEWS_CATEGORIES } from '../data/rssData'
+import { imageProxyUrl } from '../data/imageProxy'
 import NewsModal from '../components/NewsModal'
 
 function getCategoryLabel(id) {
@@ -176,7 +177,7 @@ function CategoryPage() {
                       </div>
                     </div>
                     <img
-                      src={article.image ? article.image : 'https://picsum.photos/seed/category/640/480'}
+                      src={article.image ? imageProxyUrl(article.image) : 'https://picsum.photos/seed/category/640/480'}
                       alt={article.title}
                       loading="lazy"
                       className="w-full object-cover aspect-[4/3] rounded-lg"

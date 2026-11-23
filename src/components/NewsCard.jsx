@@ -1,5 +1,6 @@
 import React from 'react'
 import { NEWS_CATEGORIES } from '../data/rssData'
+import { imageProxyUrl } from '../data/imageProxy'
 
 function getCategoryLabel(id) {
   const found = NEWS_CATEGORIES.find((cat) => cat.id === id)
@@ -34,7 +35,7 @@ function NewsCard({ news, onOpen }) {
         onClick={handleCardClick}
       >
         <img
-          src={news.image ? news.image : 'https://picsum.photos/seed/news-card/400/225'}
+          src={news.image ? imageProxyUrl(news.image) : 'https://picsum.photos/seed/news-card/400/225'}
           alt={news.title}
           loading="lazy"
           className="w-full object-cover aspect-video rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.03] group-hover:shadow-md"

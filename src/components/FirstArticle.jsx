@@ -1,4 +1,5 @@
 import React from 'react'
+import { imageProxyUrl } from '../data/imageProxy'
 
 function FirstArticle({ news, onOpen }) {
   if (!news) return null
@@ -11,7 +12,7 @@ function FirstArticle({ news, onOpen }) {
     <section className="mb-12 lg:mb-16 animate-heroSlideIn">
       <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
         <img
-          src={news.image ? news.image : 'https://picsum.photos/seed/news-hero/800/450'}
+          src={news.image ? imageProxyUrl(news.image) : 'https://picsum.photos/seed/news-hero/800/450'}
           alt={news.title}
           loading="lazy"
           className="w-full object-cover rounded-lg aspect-video cursor-pointer"
