@@ -62,6 +62,7 @@ test('does not follow image redirects', async () => {
   })
 
   assert.equal(options.redirect, 'manual')
+  assert.equal(options.headers.referer, 'https://dantri.com.vn/')
   assert.equal(res.statusCode, 502)
   assert.deepEqual(bodyJson(res), { error: 'image_unavailable' })
 })

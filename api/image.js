@@ -77,7 +77,10 @@ export async function sendImage(res, rawUrl, fetchImpl = fetch) {
 
   try {
     const upstream = await fetchImpl(url, {
-      headers: { accept: 'image/avif,image/webp,image/png,image/jpeg,image/gif,image/*;q=0.8,*/*;q=0.5' },
+      headers: {
+        accept: 'image/avif,image/webp,image/png,image/jpeg,image/gif,image/*;q=0.8,*/*;q=0.5',
+        referer: 'https://dantri.com.vn/',
+      },
       referrerPolicy: 'no-referrer',
       redirect: 'manual',
     })
