@@ -1,6 +1,5 @@
 import React from 'react'
 import { NEWS_CATEGORIES } from '../data/rssData'
-import { imageProxyUrl } from '../data/imageProxy'
 
 function getCategoryLabel(id) {
   const found = NEWS_CATEGORIES.find((cat) => cat.id === id)
@@ -21,7 +20,7 @@ function FeaturedArticles({ articles, onOpen }) {
           style={{ animationDelay: `${Math.min((index + 1) * 0.08, 0.4)}s` }}
         >
           <img
-            src={article.image ? imageProxyUrl(article.image) : 'https://picsum.photos/seed/featured/400/225'}
+            src={article.image ? article.image : 'https://picsum.photos/seed/featured/400/225'}
             alt={article.title}
             loading="lazy"
             className="w-full object-cover aspect-[16/9] max-h-[140px] rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.04] group-hover:shadow-md"

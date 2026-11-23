@@ -3,7 +3,6 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "routes": [
-    { "src": "/api/image", "dest": "/api/image.js" },
     { "src": "/api/rss", "dest": "/api/rss.js" },
     { "src": "/api/supabase", "dest": "/api/supabase.js" },
     { "handle": "filesystem" },

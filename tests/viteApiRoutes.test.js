@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import viteConfig from '../vite.config.js'
 
-test('registers the image proxy on the Vite development server', () => {
+test('registers the API proxies on the Vite development server', () => {
   const registeredPaths = []
   const server = {
     middlewares: {
@@ -14,5 +14,5 @@ test('registers the image proxy on the Vite development server', () => {
 
   viteConfig({ mode: 'test' }).plugins.forEach((plugin) => plugin.configureServer?.(server))
 
-  assert.deepEqual(registeredPaths, ['/api/supabase', '/api/rss', '/api/image'])
+  assert.deepEqual(registeredPaths, ['/api/supabase', '/api/rss'])
 })

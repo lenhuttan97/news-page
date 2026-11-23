@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { NEWS_CATEGORIES } from '../data/rssData'
 import { fetchStoryDetail, toParagraphs } from '../data/supabaseData'
-import { imageProxyUrl } from '../data/imageProxy'
 import ImageCarousel from './ImageCarousel'
 
 function getCategoryLabel(id) {
@@ -129,7 +128,7 @@ function NewsModal({ news, onClose }) {
             <ImageCarousel key={news.id} images={slides} title={news.title} />
           ) : news.image && (
             <img
-              src={imageProxyUrl(news.image)}
+              src={news.image}
               alt={news.title}
               className="mb-6 h-64 w-full rounded-t-xl object-cover"
             />
