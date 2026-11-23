@@ -1,8 +1,13 @@
 import { isIP } from 'node:net'
 
+const IMAGE_HOST = 'cdnphoto.dantri.com.vn'
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024
+
 function isPrivateIp(hostname) {
   const host = hostname.replace(/^\[|\]$/g, '')
-  if (isIP(host) === 6) return host === '::1' || host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80:')
+  if (isIP(host) === 6) {
+    return host === '::' || host === '::1' || host.startsWith('::ffff:') || host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80:')
+  }
   if (isIP(host) !== 4) return false
 
   const [first, second] = host.split('.').map(Number)
@@ -21,14 +26,15 @@ function isPrivateIp(hostname) {
 function parseImageUrl(rawUrl) {
   try {
     const url = new URL(rawUrl)
+    const hostname = url.hostname.toLowerCase().replace(/\.$/, '')
     if (
       url.protocol !== 'https:' ||
-      !url.hostname ||
+      hostname !== IMAGE_HOST ||
       url.username ||
       url.password ||
-      url.hostname === 'localhost' ||
-      url.hostname.endsWith('.local') ||
-      isPrivateIp(url.hostname)
+      hostname === 'localhost' ||
+      hostname.endsWith('.local') ||
+      isPrivateIp(hostname)
     ) {
       return null
     }
@@ -45,6 +51,26 @@ function sendJson(res, status, error) {
   res.end(JSON.stringify({ error }))
 }
 
+async function readImage(upstream) {
+  const contentLength = Number(upstream.headers.get('content-length'))
+  if (Number.isFinite(contentLength) && (contentLength < 0 || contentLength > MAX_IMAGE_BYTES)) return null
+
+  const reader = upstream.body?.getReader()
+  if (!reader) return null
+  const chunks = []
+  let size = 0
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) return Buffer.concat(chunks, size)
+    size += value.byteLength
+    if (size > MAX_IMAGE_BYTES) {
+      await reader.cancel()
+      return null
+    }
+    chunks.push(Buffer.from(value))
+  }
+}
+
 export async function sendImage(res, rawUrl, fetchImpl = fetch) {
   const url = parseImageUrl(rawUrl)
   if (!url) return sendJson(res, 400, 'invalid_url')
@@ -53,16 +79,19 @@ export async function sendImage(res, rawUrl, fetchImpl = fetch) {
     const upstream = await fetchImpl(url, {
       headers: { accept: 'image/avif,image/webp,image/png,image/jpeg,image/gif,image/*;q=0.8,*/*;q=0.5' },
       referrerPolicy: 'no-referrer',
+      redirect: 'manual',
     })
     const contentType = upstream.headers.get('content-type') || ''
     if (!upstream.ok || !contentType.startsWith('image/') || contentType.startsWith('image/svg')) {
       return sendJson(res, 502, 'image_unavailable')
     }
+    const image = await readImage(upstream)
+    if (!image) return sendJson(res, 502, 'image_unavailable')
 
     res.statusCode = 200
     res.setHeader('content-type', contentType)
     res.setHeader('cache-control', 'public, s-maxage=86400, stale-while-revalidate=604800')
-    res.end(Buffer.from(await upstream.arrayBuffer()))
+    res.end(image)
   } catch {
     return sendJson(res, 502, 'image_unavailable')
   }

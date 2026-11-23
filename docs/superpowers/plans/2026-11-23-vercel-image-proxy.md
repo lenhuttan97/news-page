@@ -2,11 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Render dynamic news images through a safe same-origin proxy on Vercel.
+**Goal:** Render hotlink-protected Dân Trí images through a safe same-origin
+proxy on Vercel.
 
-**Architecture:** A serverless image endpoint fetches validated HTTPS image URLs
-without a browser referrer. A small client helper rewrites only displayed dynamic
-images to that endpoint. The SPA rewrite excludes all API routes.
+**Architecture:** A serverless image endpoint fetches validated Dân Trí HTTPS
+image URLs without a browser referrer, rejects redirects, and caps response
+size. A small client helper rewrites only displayed Dân Trí images to that
+endpoint. The SPA rewrite excludes all API routes.
 
 **Tech Stack:** Vercel serverless functions, React 18, Node built-in test runner.
 
@@ -16,7 +18,9 @@ images to that endpoint. The SPA rewrite excludes all API routes.
 
 - Add no dependencies.
 - Preserve raw source image URLs in data models.
-- Accept HTTPS URLs only and reject private IP literals.
+- Allow only `cdnphoto.dantri.com.vn` HTTPS URLs; reject redirects and private
+  IP literals.
+- Limit image bodies to 4 MiB.
 - Return stable JSON errors without upstream response details.
 - Exclude `/api` from the Vercel SPA rewrite.
 
@@ -24,7 +28,7 @@ images to that endpoint. The SPA rewrite excludes all API routes.
 
 - Missing or malformed `url` must return `400 invalid_url`.
 - A private-IP literal or non-HTTPS URL must never be fetched.
-- An upstream 403 or non-image body must return `502 image_unavailable`.
+- An upstream 403, redirect, oversized, or non-image body must return `502 image_unavailable`.
 - Query encoding must preserve the complete external image URL.
 - RSS, Supabase, and image API routes must not receive SPA HTML in production.
 
@@ -43,8 +47,8 @@ images to that endpoint. The SPA rewrite excludes all API routes.
 
 - [ ] **Step 1: Write failing tests**
 
-Cover invalid URLs, private IP literals, upstream failures/non-image responses,
-and forwarding a successful `image/jpeg` response.
+Cover invalid URLs, private IP literals, redirects, oversized and non-image
+responses, and forwarding a successful `image/jpeg` response.
 
 - [ ] **Step 2: Run tests to verify RED**
 
@@ -77,8 +81,8 @@ Expected: PASS.
 
 - [ ] **Step 1: Write a failing helper test**
 
-Assert a valid HTTPS URL becomes `/api/image?url=<encoded URL>` and all other
-values remain unchanged.
+Assert an approved Dân Trí HTTPS URL becomes `/api/image?url=<encoded URL>` and
+all other values remain unchanged.
 
 - [ ] **Step 2: Run tests to verify RED**
 

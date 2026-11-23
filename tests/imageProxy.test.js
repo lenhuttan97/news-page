@@ -19,18 +19,26 @@ function bodyJson(res) {
   return JSON.parse(String(res.body))
 }
 
-test('encodes only HTTPS image URLs for the same-origin proxy', () => {
+test('encodes only Dân Trí HTTPS image URLs for the same-origin proxy', () => {
   assert.equal(
     imageProxyUrl('https://cdnphoto.dantri.com.vn/a photo.jpg?width=1200'),
     '/api/image?url=https%3A%2F%2Fcdnphoto.dantri.com.vn%2Fa%20photo.jpg%3Fwidth%3D1200',
   )
+  assert.equal(imageProxyUrl('https://example.com/image.jpg'), 'https://example.com/image.jpg')
   assert.equal(imageProxyUrl('http://cdnphoto.dantri.com.vn/image.jpg'), 'http://cdnphoto.dantri.com.vn/image.jpg')
   assert.equal(imageProxyUrl(''), '')
   assert.equal(imageProxyUrl('not a URL'), 'not a URL')
 })
 
 test('rejects missing and unsafe image URLs without fetching', async () => {
-  for (const url of ['', 'http://cdnphoto.dantri.com.vn/image.jpg', 'https://127.0.0.1/image.jpg']) {
+  for (const url of [
+    '',
+    'http://cdnphoto.dantri.com.vn/image.jpg',
+    'https://127.0.0.1/image.jpg',
+    'https://localhost./image.jpg',
+    'https://[::ffff:127.0.0.1]/image.jpg',
+    'https://example.com/image.jpg',
+  ]) {
     const res = responseRecorder()
     let calls = 0
 
@@ -42,6 +50,20 @@ test('rejects missing and unsafe image URLs without fetching', async () => {
     assert.deepEqual(bodyJson(res), { error: 'invalid_url' })
     assert.equal(calls, 0)
   }
+})
+
+test('does not follow image redirects', async () => {
+  const res = responseRecorder()
+  let options
+
+  await sendImage(res, 'https://cdnphoto.dantri.com.vn/image.jpg', async (_url, requestOptions) => {
+    options = requestOptions
+    return new Response(null, { status: 302, headers: { location: 'http://127.0.0.1/' } })
+  })
+
+  assert.equal(options.redirect, 'manual')
+  assert.equal(res.statusCode, 502)
+  assert.deepEqual(bodyJson(res), { error: 'image_unavailable' })
 })
 
 test('maps unavailable or non-image upstream responses to a stable error', async () => {
@@ -56,6 +78,26 @@ test('maps unavailable or non-image upstream responses to a stable error', async
     assert.equal(res.statusCode, 502)
     assert.deepEqual(bodyJson(res), { error: 'image_unavailable' })
   }
+})
+
+test('rejects an image response that exceeds the byte limit', async () => {
+  const res = responseRecorder()
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new Uint8Array(4 * 1024 * 1024))
+      controller.enqueue(new Uint8Array(1))
+      controller.close()
+    },
+  })
+
+  await sendImage(
+    res,
+    'https://cdnphoto.dantri.com.vn/image.jpg',
+    async () => new Response(body, { headers: { 'content-type': 'image/jpeg' } }),
+  )
+
+  assert.equal(res.statusCode, 502)
+  assert.deepEqual(bodyJson(res), { error: 'image_unavailable' })
 })
 
 test('forwards a successful image response', async () => {
