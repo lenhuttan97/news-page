@@ -94,9 +94,6 @@ function NewsModal({ news, onClose }) {
   const [mounted, setMounted] = useState(false)
   const detail = useStoryDetail(news?.supabaseId)
   const isMarkdownBody = detail.status === 'ok' && isMarkdown(detail.data.text)
-  // Supabase story bodies load asynchronously: hide the lead image until we know
-  // whether it must be replaced by inline Markdown images (avoids a flash).
-  const hideLead = detail.status === 'ok' ? isMarkdownBody : Boolean(news?.supabaseId)
   const slides = detail.status === 'ok' ? buildSlides(news?.image, detail.data.images) : []
 
   useEffect(() => {
@@ -132,7 +129,7 @@ function NewsModal({ news, onClose }) {
         </button>
 
         <div className="max-h-[85vh] overflow-y-auto overscroll-contain themed-scrollbar">
-          {!hideLead && (slides.length > 1 ? (
+          {slides.length > 1 && !isMarkdownBody ? (
             <ImageCarousel key={news.id} images={slides} title={news.title} />
           ) : news.image && (
             <img
@@ -140,7 +137,7 @@ function NewsModal({ news, onClose }) {
               alt={news.title}
               className="mb-6 h-64 w-full rounded-t-xl object-cover"
             />
-          ))}
+          )}
 
           <div className="p-6">
             <span className="mb-3 inline-block rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
