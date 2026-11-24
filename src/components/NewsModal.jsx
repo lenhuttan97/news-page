@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { NEWS_CATEGORIES } from '../data/rssData'
 import { fetchStoryDetail, toParagraphs } from '../data/supabaseData'
+import { isMarkdown } from '../data/markdown'
 import ImageCarousel from './ImageCarousel'
+
+// Code-split: the Markdown parser ships only when a Markdown story is opened.
+const MarkdownBody = React.lazy(() => import('./MarkdownBody'))
 
 function getCategoryLabel(id) {
   const found = NEWS_CATEGORIES.find((cat) => cat.id === id)
@@ -89,6 +93,7 @@ function StoryBody({ detail }) {
 function NewsModal({ news, onClose }) {
   const [mounted, setMounted] = useState(false)
   const detail = useStoryDetail(news?.supabaseId)
+  const isMarkdownBody = detail.status === 'ok' && isMarkdown(detail.data.text)
   const slides = detail.status === 'ok' ? buildSlides(news?.image, detail.data.images) : []
 
   useEffect(() => {
@@ -124,7 +129,7 @@ function NewsModal({ news, onClose }) {
         </button>
 
         <div className="max-h-[85vh] overflow-y-auto overscroll-contain themed-scrollbar">
-          {slides.length > 1 ? (
+          {slides.length > 1 && !isMarkdownBody ? (
             <ImageCarousel key={news.id} images={slides} title={news.title} />
           ) : news.image && (
             <img
@@ -151,7 +156,13 @@ function NewsModal({ news, onClose }) {
               {news.description || 'Chưa có mô tả.'}
             </p>
 
-            <StoryBody detail={detail} />
+            {isMarkdownBody ? (
+              <React.Suspense fallback={null}>
+                <MarkdownBody text={detail.data.text} />
+              </React.Suspense>
+            ) : (
+              <StoryBody detail={detail} />
+            )}
 
             <div className="flex items-center justify-between gap-4 border-t border-border-light pt-4 dark:border-border-dark">
               <button
