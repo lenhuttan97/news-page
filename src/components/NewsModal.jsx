@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { NEWS_CATEGORIES } from '../data/rssData'
 import { fetchStoryDetail, toParagraphs } from '../data/supabaseData'
+import { isMarkdown } from '../data/markdown'
 import ImageCarousel from './ImageCarousel'
 
 function getCategoryLabel(id) {
@@ -46,7 +49,45 @@ function useStoryDetail(storyId) {
   return detail.storyId === storyId ? detail : { status: 'loading' }
 }
 
-function StoryBody({ detail }) {
+// Markdown uses the same palette as the dialog; images stay inside its content width.
+const markdownComponents = {
+  h1: ({ node, ...props }) => <h2 className="mb-3 mt-6 font-serif text-xl font-bold first:mt-0" {...props} />,
+  h2: ({ node, ...props }) => <h3 className="mb-3 mt-6 font-serif text-lg font-bold first:mt-0" {...props} />,
+  h3: ({ node, ...props }) => <h4 className="mb-2 mt-5 text-base font-semibold first:mt-0" {...props} />,
+  p: ({ node, ...props }) => <p className="mb-4 last:mb-0" {...props} />,
+  a: ({ node, ...props }) => (
+    <a className="break-words text-primary underline underline-offset-2 hover:text-primary/80" target="_blank" rel="noopener noreferrer" {...props} />
+  ),
+  img: ({ node, alt, ...props }) => (
+    <img
+      className="mx-auto my-4 block h-auto max-w-full rounded-lg"
+      alt={alt || ''}
+      loading="lazy"
+      {...props}
+    />
+  ),
+  ul: ({ node, ...props }) => <ul className="mb-4 list-disc space-y-1 pl-6" {...props} />,
+  ol: ({ node, ...props }) => <ol className="mb-4 list-decimal space-y-1 pl-6" {...props} />,
+  blockquote: ({ node, ...props }) => (
+    <blockquote className="mb-4 border-l-4 border-accent/40 pl-4 italic text-text-muted-light dark:text-text-muted-dark" {...props} />
+  ),
+  pre: ({ node, ...props }) => (
+    <pre className="mb-4 overflow-x-auto rounded-lg bg-gray-100 p-4 text-sm dark:bg-white/10 [&_code]:bg-transparent [&_code]:p-0" {...props} />
+  ),
+  code: ({ node, ...props }) => (
+    <code className="rounded bg-gray-100 px-1.5 py-0.5 text-[0.9em] dark:bg-white/10" {...props} />
+  ),
+  table: ({ node, ...props }) => (
+    <div className="mb-4 overflow-x-auto">
+      <table className="w-full border-collapse text-sm" {...props} />
+    </div>
+  ),
+  th: ({ node, ...props }) => <th className="border border-border-light px-3 py-2 text-left dark:border-border-dark" {...props} />,
+  td: ({ node, ...props }) => <td className="border border-border-light px-3 py-2 dark:border-border-dark" {...props} />,
+  hr: ({ node, ...props }) => <hr className="my-6 border-border-light dark:border-border-dark" {...props} />,
+}
+
+function StoryBody({ detail, isMarkdown: isMarkdownBody }) {
   if (detail.status === 'loading') {
     return (
       <div role="status" className="mb-6 space-y-2 animate-pulse">
@@ -77,10 +118,18 @@ function StoryBody({ detail }) {
           .filter(Boolean)
           .join(' • ')}
       </p>
-      <div className="space-y-4 text-base leading-relaxed text-text-light dark:text-text-dark">
-        {toParagraphs(text).map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
+      <div className="text-base leading-relaxed text-text-light dark:text-text-dark">
+        {isMarkdownBody ? (
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            {text}
+          </ReactMarkdown>
+        ) : (
+          <div className="space-y-4">
+            {toParagraphs(text).map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -89,6 +138,7 @@ function StoryBody({ detail }) {
 function NewsModal({ news, onClose }) {
   const [mounted, setMounted] = useState(false)
   const detail = useStoryDetail(news?.supabaseId)
+  const isMarkdownBody = detail.status === 'ok' && isMarkdown(detail.data.text)
   const slides = detail.status === 'ok' ? buildSlides(news?.image, detail.data.images) : []
 
   useEffect(() => {
@@ -124,7 +174,7 @@ function NewsModal({ news, onClose }) {
         </button>
 
         <div className="max-h-[85vh] overflow-y-auto overscroll-contain themed-scrollbar">
-          {slides.length > 1 ? (
+          {!isMarkdownBody && (slides.length > 1 ? (
             <ImageCarousel key={news.id} images={slides} title={news.title} />
           ) : news.image && (
             <img
@@ -132,7 +182,7 @@ function NewsModal({ news, onClose }) {
               alt={news.title}
               className="mb-6 h-64 w-full rounded-t-xl object-cover"
             />
-          )}
+          ))}
 
           <div className="p-6">
             <span className="mb-3 inline-block rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -151,7 +201,7 @@ function NewsModal({ news, onClose }) {
               {news.description || 'Chưa có mô tả.'}
             </p>
 
-            <StoryBody detail={detail} />
+            <StoryBody detail={detail} isMarkdown={isMarkdownBody} />
 
             <div className="flex items-center justify-between gap-4 border-t border-border-light pt-4 dark:border-border-dark">
               <button
