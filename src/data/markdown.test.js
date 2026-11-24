@@ -22,6 +22,10 @@ test('does not treat inline emphasis alone as markdown', () => {
   assert.equal(isMarkdown('Giá trị *không* phải block Markdown riêng lẻ.'), false)
 })
 
+test('treats a plain sentence containing an inline link as markdown', () => {
+  assert.equal(isMarkdown('Theo báo cáo [2024](https://example.com/báo cáo)…'), true)
+})
+
 test('returns false for non-string input', () => {
   assert.equal(isMarkdown(null), false)
 })
