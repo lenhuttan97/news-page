@@ -98,11 +98,10 @@ function CategoryPage() {
     )
   }
 
-  // Show skeleton whenever a fetch is in flight (incl. first render after a
-// slug switch) OR the min-time timer is still holding the last skeleton open.
-// Checking categoryLoading directly avoids isShowingLoading being stale
-// on the first render of a newly-selected slug.
-  if ((categoryLoading || isShowingLoading) && categoryArticles.length === 0) {
+  // Match the home page transition: replace the page with its skeleton while
+  // the selected category's first page is loading. Keep existing rows visible
+  // during infinite-scroll requests.
+  if ((categoryLoading || isShowingLoading) && !loadingMore) {
     return <SkeletonLoader />
   }
 
