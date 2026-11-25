@@ -25,7 +25,7 @@ async function readJson(res, what) {
 // Crawled URLs end up in an <a href>: allow web links only (no javascript:/data:).
 const safeLink = (url) => (/^https?:\/\//i.test(url || '') ? url : '#')
 
-function toArticle(story) {
+function toArticle(story, categoryId) {
   const extraSources = (story.sources || []).filter((source) => source !== story.source).length
   return {
     id: `supabase-${story.id}`,
@@ -39,7 +39,7 @@ function toArticle(story) {
     sourceKey: story.source,
     source: extraSources > 0 ? `${story.source} +${extraSources} nguồn` : story.source,
     color: 'blue',
-    category: categorizeNews(`${story.section || ''} ${story.title}`),
+    category: categoryId || categorizeNews(`${story.section || ''} ${story.title}`),
   }
 }
 
@@ -50,7 +50,7 @@ async function loadStories({ limit, offset = 0, categoryId } = {}) {
   const body = await readJson(res, 'dữ liệu Tafu Hub')
   if (!Array.isArray(body.stories)) throw new Error('Tafu Hub trả về dữ liệu không hợp lệ.')
   return {
-    items: body.stories.map(toArticle),
+    items: body.stories.map((story) => toArticle(story, categoryId)),
     nextOffset: Number.isFinite(body.nextOffset) ? body.nextOffset : offset + body.stories.length,
     hasMore: Boolean(body.hasMore),
   }

@@ -1,4 +1,4 @@
-import { categorizeNews, NEWS_CATEGORIES } from '../src/data/rssData.js'
+import { NEWS_CATEGORIES } from '../src/data/rssData.js'
 
 // Read-only proxy to the mini_crawler Supabase mirror. The tables have RLS with
 // no policies, so only the secret key can read them; it stays on the server.
@@ -8,10 +8,6 @@ const MAX_LIMIT = 200
 // A story has at most one mapping per source (unique story_id+source), so 50 ids
 // stay far below PostgREST's row cap and keep each URL ~2 KB.
 const IDS_PER_REQUEST = 50
-// Category membership is currently derived in application code from section/title,
-// so PostgREST cannot filter it directly. Read larger batches to avoid serial
-// round trips when collecting the first 30 matching stories.
-const CATEGORY_SCAN_SIZE = 1000
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // Every call here reads rows, so anything but a JSON array is an upstream fault.
@@ -76,39 +72,12 @@ export async function loadStories(env, limit = MAX_LIMIT, offset = 0, categoryId
     nextOffset += stories.length
     hasMore = stories.length === size
   } else {
-    // Scan the newest rows until this category has a full page. Keep the cursor
-    // immediately after the last returned match so no matches are skipped.
-    let scanOffset = start
-    let exhausted = false
-    while (stories.length < size && !exhausted) {
-      const batch = await rest(
-        env,
-        `news_stories?select=${STORY_COLUMNS}&order=crawled_at.desc,id.desc&offset=${scanOffset}&limit=${CATEGORY_SCAN_SIZE}`,
-      )
-      if (batch.length === 0) {
-        exhausted = true
-        break
-      }
-
-      for (let index = 0; index < batch.length; index += 1) {
-        const story = batch[index]
-        if (categorizeNews(`${story.section || ''} ${story.title || ''}`) === categoryId) {
-          stories.push(story)
-          if (stories.length === size) {
-            nextOffset = scanOffset + index + 1
-            hasMore = batch.length === CATEGORY_SCAN_SIZE || index + 1 < batch.length
-            break
-          }
-        }
-      }
-
-      if (stories.length < size) {
-        scanOffset += batch.length
-        nextOffset = scanOffset
-        exhausted = batch.length < CATEGORY_SCAN_SIZE
-      }
-    }
-    if (exhausted) hasMore = false
+    stories = await rest(
+      env,
+      `news_stories?select=${STORY_COLUMNS}&section=eq.${encodeURIComponent(categoryId)}&order=crawled_at.desc,id.desc&offset=${start}&limit=${size}`,
+    )
+    nextOffset += stories.length
+    hasMore = stories.length === size
   }
 
   if (stories.length === 0) return { stories: [], nextOffset, hasMore }
