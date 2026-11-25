@@ -16,6 +16,7 @@ const initialState = {
   nextOffset: 0,
   error: null,
   errorOffset: null,
+  generation: 0,
   requestId: null,
 }
 
@@ -34,6 +35,7 @@ const homeSlice = createSlice({
         const isLoadMore = (action.meta.arg?.offset || 0) > 0
         state.loading = !isLoadMore
         state.loadingMore = isLoadMore
+        if (!isLoadMore) state.generation += 1
         state.error = null
         state.errorOffset = null
         state.requestId = action.meta.requestId

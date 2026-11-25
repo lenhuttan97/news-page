@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useParams, Link } from 'react-router-dom'
 import SkeletonLoader from '../components/SkeletonLoader'
 import { useLoadingTimer } from '../hooks/useLoadingTimer'
+import { selectAllArticles, fetchNews } from '../store/homeSlice'
 import { selectCategoryEntry, fetchCategoryNews } from '../store/categorySlice'
 import { selectDataSource, selectMixSources } from '../store/settingsSlice'
 import { mixSources } from '../data/mixSources'
@@ -26,15 +27,22 @@ function CategoryPage() {
     [fetchedArticles, mix],
   )
   const isShowingLoading = useLoadingTimer(categoryLoading)
+  const allArticles = useSelector(selectAllArticles)
+  // The sidebar shows home's feed: load it when nothing has requested it yet
+  // (direct visit to a category, or the data source was just switched here).
+  const homeRequested = useSelector((state) => state.home.requestId !== null)
+  useEffect(() => {
+    if (!homeRequested) dispatch(fetchNews())
+  }, [dispatch, homeRequested])
   const dataSource = useSelector(selectDataSource)
 
   const isKnownCategory = NEWS_CATEGORIES.some((cat) => cat.id === slug)
 
   const CATEGORY_PAGE_SIZE = 30
   const sentinelRef = useRef(null)
+  const [selectedArticle, setSelectedArticle] = useState(null)
   const loadLock = useRef(false)
   const requestedCategory = useRef(null)
-  const [selectedArticle, setSelectedArticle] = useState(null)
 
   useLayoutEffect(() => {
     if (isKnownCategory && slug !== 'all') {
@@ -46,7 +54,7 @@ function CategoryPage() {
   }, [dispatch, slug, isKnownCategory, dataSource])
 
   useEffect(() => {
-    if (!loadingMore && !categoryLoading) loadLock.current = false
+    if (!categoryLoading && !loadingMore) loadLock.current = false
   }, [categoryLoading, loadingMore])
 
   const requestNextPage = useCallback(() => {
@@ -68,6 +76,10 @@ function CategoryPage() {
     observer.observe(sentinel)
     return () => observer.disconnect()
   }, [error, requestNextPage])
+
+  const sidebarArticles = allArticles
+    .filter((item) => item.category && item.category.toLowerCase() !== (slug || '').toLowerCase())
+    .slice(0, 5)
 
   if (slug === 'all') {
     return <Navigate to="/" replace />
@@ -123,8 +135,8 @@ function CategoryPage() {
       </div>
 
       {categoryArticles.length > 0 ? (
-        <div className="grid grid-cols-1">
-          <div className="col-span-1">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="col-span-1 lg:col-span-9">
             <div className="flex flex-col space-y-4">
               {categoryArticles.map((article, index) => (
                 <article
@@ -204,6 +216,33 @@ function CategoryPage() {
             </div>
           </div>
 
+          {sidebarArticles.length > 0 && (
+            <div className="hidden lg:block lg:col-span-3">
+              <div className="sticky top-10">
+                <h2 className="mb-4 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark animate-pageFadeInUp stagger-1">
+                  Tin mới nhất
+                </h2>
+                <div className="flex flex-col space-y-4">
+                  {sidebarArticles.map((item, index) => (
+                    <button
+                      key={item.id || index}
+                      type="button"
+                      onClick={() => setSelectedArticle(item)}
+                      className="group w-full text-left animate-cardAppear"
+                      style={{ animationDelay: `${(index + 1) * 0.06}s` }}
+                    >
+                      <p className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
+                        {item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''} • {item.source}
+                      </p>
+                     </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="text-center py-16 animate-pageFadeInUp">
