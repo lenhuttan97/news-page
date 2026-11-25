@@ -8,7 +8,10 @@ const MAX_LIMIT = 200
 // A story has at most one mapping per source (unique story_id+source), so 50 ids
 // stay far below PostgREST's row cap and keep each URL ~2 KB.
 const IDS_PER_REQUEST = 50
-const CATEGORY_SCAN_SIZE = 200
+// Category membership is currently derived in application code from section/title,
+// so PostgREST cannot filter it directly. Read larger batches to avoid serial
+// round trips when collecting the first 30 matching stories.
+const CATEGORY_SCAN_SIZE = 1000
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // Every call here reads rows, so anything but a JSON array is an upstream fault.
