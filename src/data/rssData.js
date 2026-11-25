@@ -1,4 +1,5 @@
 const PROXY = '/api/rss';
+const HOME_ARTICLE_LIMIT = 50;
 
 export const HOME_FEEDS = [
   { source: 'VnExpress', rss_url: 'https://vnexpress.net/rss/tin-moi-nhat.rss', color: 'blue' },
@@ -159,13 +160,16 @@ function dateToNumber(item) {
   return Number.isNaN(time) ? 0 : time;
 }
 
-async function fetchFeedList(feeds, forcedCategory) {
+async function fetchFeedList(feeds, forcedCategory, { fresh = false, maxItems = Infinity } = {}) {
   const settled = await Promise.all(
     feeds.map(async (feed) => {
       try {
-        const res = await fetch(`${PROXY}?url=${encodeURIComponent(feed.rss_url)}`);
+        const freshParam = fresh ? '&fresh=1' : '';
+        const res = await fetch(`${PROXY}?url=${encodeURIComponent(feed.rss_url)}${freshParam}`, {
+          cache: fresh ? 'no-store' : 'default',
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return parseRSSXML(await res.text(), feed.source, feed.color, forcedCategory);
+        return parseRSSXML(await res.text(), feed.source, feed.color, forcedCategory, maxItems);
       } catch (error) {
         console.warn(`Failed to fetch ${feed.source} ${feed.rss_url}:`, error);
         return [];
@@ -186,25 +190,35 @@ async function fetchFeedList(feeds, forcedCategory) {
     .sort((a, b) => dateToNumber(b) - dateToNumber(a));
 }
 
-export async function fetchHomeNews() {
-  return fetchFeedList(HOME_FEEDS);
+function pageArticles(articles, offset, limit) {
+  const start = Math.max(Number.parseInt(offset, 10) || 0, 0);
+  const size = Math.max(Number.parseInt(limit, 10) || 1, 1);
+  const items = articles.slice(start, start + size);
+  const nextOffset = start + items.length;
+  return { items, nextOffset, hasMore: nextOffset < articles.length };
 }
 
-export async function fetchCategoryNews(categoryId) {
+export async function fetchHomeNews({ offset = 0, limit = HOME_ARTICLE_LIMIT } = {}) {
+  const articles = await fetchFeedList(HOME_FEEDS, undefined, { maxItems: offset + limit });
+  return pageArticles(articles, offset, limit);
+}
+
+export async function fetchCategoryNews(categoryId, { offset = 0, limit = 30 } = {}) {
   const feeds = CATEGORY_FEEDS[categoryId];
-  if (!feeds) return [];
-  return fetchFeedList(feeds, categoryId);
+  if (!feeds) return { items: [], nextOffset: offset, hasMore: false };
+  const articles = await fetchFeedList(feeds, categoryId, { fresh: true, maxItems: offset + limit });
+  return pageArticles(articles, offset, limit);
 }
 
 export async function fetchRSSData() {
-  return fetchHomeNews();
+  return (await fetchHomeNews()).items;
 }
 
-function parseRSSXML(xmlText, source, color, forcedCategory) {
+function parseRSSXML(xmlText, source, color, forcedCategory, maxItems = Infinity) {
   const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
   if (doc.querySelector('parsererror')) throw new Error('Invalid XML');
   const items = [];
-  Array.from(doc.getElementsByTagName('item')).forEach((node) => {
+  Array.from(doc.getElementsByTagName('item')).slice(0, maxItems).forEach((node) => {
     const title = node.querySelector('title')?.textContent || '';
     const link = node.querySelector('link')?.textContent || '';
     const descriptionHtml = node.querySelector('description')?.textContent || '';

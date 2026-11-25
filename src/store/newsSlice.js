@@ -2,13 +2,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { fetchHomeNews, fetchCategoryNews as fetchCategoryRSS } from '../data/rssData';
 
 export const fetchNews = createAsyncThunk('news/fetchNews', async () => {
-  return await fetchHomeNews();
+  return (await fetchHomeNews()).items;
 });
 
 export const fetchCategoryNews = createAsyncThunk(
   'news/fetchCategoryNews',
   async (categoryId) => {
-    return await fetchCategoryRSS(categoryId);
+    return (await fetchCategoryRSS(categoryId)).items;
   }
 );
 

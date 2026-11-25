@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useParams, Link } from 'react-router-dom'
 import SkeletonLoader from '../components/SkeletonLoader'
 import { useLoadingTimer } from '../hooks/useLoadingTimer'
-import { selectAllArticles, fetchNews } from '../store/homeSlice'
 import { selectCategoryEntry, fetchCategoryNews } from '../store/categorySlice'
 import { selectDataSource, selectMixSources } from '../store/settingsSlice'
 import { mixSources } from '../data/mixSources'
@@ -19,7 +18,7 @@ function CategoryPage() {
   const { slug } = useParams()
   const dispatch = useDispatch()
   const categoryEntry = useSelector(selectCategoryEntry(slug))
-  const { categoryLoading, error } = categoryEntry
+  const { categoryLoading, loadingMore, error, nextOffset, hasMore } = categoryEntry
   const mix = useSelector(selectMixSources)
   const fetchedArticles = categoryEntry.items
   const categoryArticles = useMemo(
@@ -27,33 +26,34 @@ function CategoryPage() {
     [fetchedArticles, mix],
   )
   const isShowingLoading = useLoadingTimer(categoryLoading)
-  const allArticles = useSelector(selectAllArticles)
-  // The sidebar shows home's feed: load it when nothing has requested it yet
-  // (direct visit to a category, or the data source was just switched here).
-  const homeRequested = useSelector((state) => state.home.requestId !== null)
-  useEffect(() => {
-    if (!homeRequested) dispatch(fetchNews())
-  }, [dispatch, homeRequested])
   const dataSource = useSelector(selectDataSource)
 
   const isKnownCategory = NEWS_CATEGORIES.some((cat) => cat.id === slug)
 
-  const CATEGORY_PAGE_SIZE = 20
-  const [visibleCount, setVisibleCount] = useState(CATEGORY_PAGE_SIZE)
+  const CATEGORY_PAGE_SIZE = 30
   const sentinelRef = useRef(null)
+  const loadLock = useRef(false)
+  const requestedCategory = useRef(null)
   const [selectedArticle, setSelectedArticle] = useState(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isKnownCategory && slug !== 'all') {
-      dispatch(fetchCategoryNews(slug))
+      const requestKey = `${dataSource}:${slug}`
+      if (requestedCategory.current === requestKey) return
+      requestedCategory.current = requestKey
+      dispatch(fetchCategoryNews({ categoryId: slug, offset: 0, limit: CATEGORY_PAGE_SIZE }))
     }
   }, [dispatch, slug, isKnownCategory, dataSource])
 
   useEffect(() => {
-    setVisibleCount(CATEGORY_PAGE_SIZE)
-  }, [slug])
+    if (!loadingMore && !categoryLoading) loadLock.current = false
+  }, [categoryLoading, loadingMore])
 
-  const hasMoreCategory = visibleCount < categoryArticles.length
+  const requestNextPage = useCallback(() => {
+    if (loadLock.current || categoryLoading || loadingMore || !hasMore) return
+    loadLock.current = true
+    dispatch(fetchCategoryNews({ categoryId: slug, offset: nextOffset, limit: CATEGORY_PAGE_SIZE }))
+  }, [categoryLoading, dispatch, hasMore, loadingMore, nextOffset, slug])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -61,29 +61,13 @@ function CategoryPage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMoreCategory) {
-          setVisibleCount((prev) =>
-            Math.min(prev + CATEGORY_PAGE_SIZE, categoryArticles.length)
-          )
-        }
+        if (entries[0].isIntersecting && !error) requestNextPage()
       },
       { rootMargin: '150px', threshold: 0.1 }
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [categoryArticles.length, hasMoreCategory, visibleCount])
-
-  useEffect(() => {
-    if (categoryArticles.length > 0 && hasMoreCategory && visibleCount < categoryArticles.length) {
-      setVisibleCount((prev) =>
-        Math.min(prev + CATEGORY_PAGE_SIZE, categoryArticles.length)
-      )
-    }
-  }, [categoryArticles.length])
-
-  const sidebarArticles = allArticles
-    .filter((item) => item.category && item.category.toLowerCase() !== (slug || '').toLowerCase())
-    .slice(0, 5)
+  }, [error, requestNextPage])
 
   if (slug === 'all') {
     return <Navigate to="/" replace />
@@ -110,10 +94,17 @@ function CategoryPage() {
     return <SkeletonLoader />
   }
 
-  if (error) {
+  if (error && categoryArticles.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
-        <p className="text-red-500">{error}</p>
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 bg-background-light text-center dark:bg-background-dark">
+        <p role="alert" className="text-red-500">{error}</p>
+        <button
+          type="button"
+          onClick={() => dispatch(fetchCategoryNews({ categoryId: slug, offset: 0, limit: CATEGORY_PAGE_SIZE }))}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+        >
+          Thử tải lại
+        </button>
       </div>
     )
   }
@@ -132,10 +123,10 @@ function CategoryPage() {
       </div>
 
       {categoryArticles.length > 0 ? (
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-          <div className="col-span-1 lg:col-span-9">
+        <div className="grid grid-cols-1">
+          <div className="col-span-1">
             <div className="flex flex-col space-y-4">
-              {categoryArticles.slice(0, visibleCount).map((article, index) => (
+              {categoryArticles.map((article, index) => (
                 <article
                   key={article.id || index}
                   onClick={() => setSelectedArticle(article)}
@@ -188,45 +179,31 @@ function CategoryPage() {
 
             {/* Sentinel and Infinite Scroll Status */}
             <div ref={sentinelRef} className="h-8 flex items-center justify-center py-0 m-0">
-              {hasMoreCategory ? (
+              {loadingMore ? (
                 <div className="flex items-center gap-1" aria-label="Đang tải thêm">
                   <span className="loading-dot w-1 h-1 rounded-full bg-primary inline-block"></span>
                   <span className="loading-dot loading-dot-2 w-1 h-1 rounded-full bg-primary inline-block"></span>
                   <span className="loading-dot loading-dot-3 w-1 h-1 rounded-full bg-primary inline-block"></span>
                 </div>
+              ) : error ? (
+                <div className="flex flex-col items-center gap-2">
+                  <p role="alert" className="text-xs text-red-500">Không tải được tin tiếp theo.</p>
+                  <button
+                    type="button"
+                    onClick={requestNextPage}
+                    className="text-sm font-semibold text-primary hover:underline"
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              ) : hasMore ? (
+                <p className="text-text-muted-light dark:text-text-muted-dark text-[10px] font-medium m-0">Cuộn để tải thêm</p>
               ) : (
                 <p className="text-text-muted-light dark:text-text-muted-dark text-[10px] font-medium m-0">Đã hiển thị tất cả tin tức</p>
               )}
             </div>
           </div>
 
-          {sidebarArticles.length > 0 && (
-            <div className="hidden lg:block lg:col-span-3">
-              <div className="sticky top-10">
-                <h2 className="mb-4 border-b border-border-light dark:border-border-dark pb-2 text-sm font-semibold uppercase tracking-wider text-text-light dark:text-text-dark animate-pageFadeInUp stagger-1">
-                  Tin mới nhất
-                </h2>
-                <div className="flex flex-col space-y-4">
-                  {sidebarArticles.map((item, index) => (
-                    <button
-                      key={item.id || index}
-                      type="button"
-                      onClick={() => setSelectedArticle(item)}
-                      className="group w-full text-left animate-cardAppear"
-                      style={{ animationDelay: `${(index + 1) * 0.06}s` }}
-                    >
-                      <p className="text-sm font-medium text-text-light dark:text-text-dark group-hover:text-accent transition-colors">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
-                        {item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''} • {item.source}
-                      </p>
-                     </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         <div className="text-center py-16 animate-pageFadeInUp">

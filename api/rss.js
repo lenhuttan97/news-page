@@ -1,8 +1,11 @@
 export default async function handler(req, res) {
-  const url = req.query?.url || new URL(req.url, 'https://example.com').searchParams.get('url');
+  const params = new URL(req.url, 'https://example.com').searchParams;
+  const url = req.query?.url || params.get('url');
+  const fresh = req.query?.fresh === '1' || params.get('fresh') === '1';
 
   if (!url) {
     res.status(400).setHeader('content-type', 'application/json');
+    res.setHeader('cache-control', 'no-store');
     return res.end(JSON.stringify({ error: 'Missing url parameter' }));
   }
 
@@ -16,10 +19,11 @@ export default async function handler(req, res) {
     const body = await response.text();
     res.status(response.status);
     res.setHeader('content-type', response.headers.get('content-type') || 'application/xml');
-    res.setHeader('cache-control', 's-maxage=60, stale-while-revalidate=300');
+    res.setHeader('cache-control', fresh ? 'no-store' : 's-maxage=60, stale-while-revalidate=300');
     return res.end(body);
   } catch (error) {
     res.status(500).setHeader('content-type', 'application/json');
+    res.setHeader('cache-control', 'no-store');
     return res.end(JSON.stringify({ error: error.message }));
   }
 }
