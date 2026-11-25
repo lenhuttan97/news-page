@@ -14,7 +14,7 @@ export const fetchCategoryNews = createAsyncThunk(
 const initialState = {
   items: [],
   currentSlug: null,
-  loading: true,
+  categoryLoading: true,
   loadingMore: false,
   error: null,
   requestId: null,
@@ -37,7 +37,7 @@ const categorySlice = createSlice({
           state.nextOffset = 0
           state.hasMore = true
           state.currentSlug = categoryId
-          state.loading = true
+          state.categoryLoading = true
           state.loadingMore = false
         } else {
           state.loadingMore = true
@@ -57,12 +57,12 @@ const categorySlice = createSlice({
         }
         state.nextOffset = nextOffset
         state.hasMore = hasMore
-        state.loading = false
+        state.categoryLoading = false
         state.loadingMore = false
       })
       .addCase(fetchCategoryNews.rejected, (state, action) => {
         if (state.requestId !== action.meta.requestId) return
-        state.loading = false
+        state.categoryLoading = false
         state.loadingMore = false
         state.error = action.error.message || 'Lỗi tải dữ liệu'
       })
