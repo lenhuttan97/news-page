@@ -31,16 +31,19 @@ function Header() {
   const [sourceOpen, setSourceOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false)
 
   const themeRef = useRef(null)
   const sourceRef = useRef(null)
   const moreRef = useRef(null)
   const mobileRef = useRef(null)
+  const mobileSettingsRef = useRef(null)
 
   // Scroll to top on route change & close menus
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
     setMobileMenuOpen(false)
+    setMobileSettingsOpen(false)
     setMoreOpen(false)
   }, [location.pathname])
 
@@ -57,6 +60,9 @@ function Header() {
       }
       if (mobileRef.current && !mobileRef.current.contains(event.target)) {
         setMobileMenuOpen(false)
+      }
+      if (mobileSettingsRef.current && !mobileSettingsRef.current.contains(event.target)) {
+        setMobileSettingsOpen(false)
       }
     }
     document.addEventListener('mousedown', onPointerDown)
@@ -77,16 +83,17 @@ function Header() {
           {/* Left: Logo */}
           <Link
             to="/"
+            aria-label="Tafu Hub - Trang chủ"
             onClick={() => {
-              dispatch(fetchNews())
+              if (location.pathname === '/') dispatch(fetchNews({ offset: 0, limit: 50 }))
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
-            className="shrink-0 flex items-center gap-2.5 text-2xl font-bold font-serif text-text-light dark:text-text-dark group animate-pageFadeInUp stagger-1"
+            className="flex shrink-0 items-center gap-2.5 text-xl font-bold font-serif text-text-light dark:text-text-dark group animate-pageFadeInUp stagger-1 sm:text-2xl"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-md group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-md transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105 sm:h-10 sm:w-10">
               <span className="material-symbols-outlined text-[22px]">newspaper</span>
             </div>
-            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
+            <span className="hidden bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent transition-opacity group-hover:opacity-90 sm:inline">
               Tafu Hub
             </span>
           </Link>
@@ -139,14 +146,14 @@ function Header() {
           </nav>
 
           {/* Right: Mobile & Theme Toggles */}
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             {/* Mobile Navigation Dropdown */}
             <div className="relative md:hidden" ref={mobileRef}>
               <button
                 onClick={() => setMobileMenuOpen((open) => !open)}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg border border-border-light dark:border-border-dark text-text-light dark:text-text-dark bg-black/5 dark:bg-white/5"
+                className="flex max-w-[42vw] items-center gap-1.5 rounded-lg border border-border-light bg-black/5 px-3 py-2 text-sm font-medium text-text-light dark:border-border-dark dark:bg-white/5 dark:text-text-dark"
               >
-                <span>{mobileButtonLabel}</span>
+                <span className="truncate">{mobileButtonLabel}</span>
                 <span className="material-symbols-outlined text-[18px]">expand_more</span>
               </button>
               {mobileMenuOpen && (
@@ -176,8 +183,87 @@ function Header() {
               )}
             </div>
 
+            {/* Mobile settings combines data source, mixing, and theme controls. */}
+            <div className="relative md:hidden" ref={mobileSettingsRef}>
+              <button
+                type="button"
+                onClick={() => setMobileSettingsOpen((open) => !open)}
+                className="flex h-10 items-center gap-1.5 rounded-lg border border-border-light px-2.5 text-sm font-medium text-text-light hover:bg-black/5 dark:border-border-dark dark:text-text-dark dark:hover:bg-white/10"
+                aria-label="Cài đặt nguồn tin và giao diện"
+                aria-expanded={mobileSettingsOpen}
+                aria-controls="mobile-settings-popover"
+              >
+                <span aria-hidden="true" className="material-symbols-outlined text-[20px]">tune</span>
+                <span className="hidden min-[390px]:inline">Cài đặt</span>
+              </button>
+              {mobileSettingsOpen && (
+                <div id="mobile-settings-popover" aria-label="Cài đặt nguồn tin và giao diện" className="absolute right-0 top-full z-50 mt-2 max-h-[75vh] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-xl border border-border-light bg-background-light p-3 shadow-xl animate-fadeIn dark:border-border-dark dark:bg-background-dark">
+                  <section aria-labelledby="mobile-source-heading">
+                    <h2 id="mobile-source-heading" className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark">
+                      Nguồn dữ liệu
+                    </h2>
+                    {SOURCE_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={dataSource === option.value}
+                        onClick={() => {
+                          if (dataSource !== option.value) dispatch(setDataSource(option.value))
+                        }}
+                        className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left text-sm text-text-light hover:bg-black/5 dark:text-text-dark dark:hover:bg-white/10"
+                      >
+                        <span className="material-symbols-outlined text-lg">{option.icon}</span>
+                        <span>{option.label}</span>
+                        <span className="material-symbols-outlined ml-auto text-lg text-accent" aria-hidden="true">
+                          {dataSource === option.value ? 'radio_button_checked' : 'radio_button_unchecked'}
+                        </span>
+                      </button>
+                    ))}
+                  </section>
+
+                  <div className="my-3 border-t border-border-light dark:border-border-dark" />
+
+                  <button
+                    type="button"
+                    aria-pressed={mix}
+                    onClick={() => dispatch(setMixSources(!mix))}
+                    className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left text-sm text-text-light hover:bg-black/5 dark:text-text-dark dark:hover:bg-white/10"
+                  >
+                    <span className="material-symbols-outlined text-lg">shuffle</span>
+                    <span className="flex-1">Trộn nguồn tin</span>
+                    <span className="material-symbols-outlined text-lg text-accent" aria-hidden="true">
+                      {mix ? 'toggle_on' : 'toggle_off'}
+                    </span>
+                  </button>
+
+                  <div className="my-3 border-t border-border-light dark:border-border-dark" />
+
+                  <section aria-labelledby="mobile-theme-heading">
+                    <h2 id="mobile-theme-heading" className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark">
+                      Giao diện
+                    </h2>
+                    {THEME_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={mode === option.value}
+                        onClick={() => dispatch(setMode(option.value))}
+                        className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left text-sm text-text-light hover:bg-black/5 dark:text-text-dark dark:hover:bg-white/10"
+                      >
+                        <span className="material-symbols-outlined text-lg">{option.icon}</span>
+                        <span>{option.label}</span>
+                        <span className="material-symbols-outlined ml-auto text-lg text-accent" aria-hidden="true">
+                          {mode === option.value ? 'radio_button_checked' : 'radio_button_unchecked'}
+                        </span>
+                      </button>
+                    ))}
+                  </section>
+                </div>
+              )}
+            </div>
+
             {/* Data Source Toggle (saved in localStorage) */}
-            <div className="relative" ref={sourceRef}>
+            <div className="relative hidden md:block" ref={sourceRef}>
               <button
                 onClick={() => setSourceOpen((open) => !open)}
                 className="flex h-10 cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-text-muted-light dark:text-text-muted-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
@@ -237,7 +323,7 @@ function Header() {
             </div>
 
             {/* Theme Toggle Button */}
-            <div className="relative" ref={themeRef}>
+            <div className="relative hidden md:block" ref={themeRef}>
               <button
                 onClick={() => setThemeOpen((open) => !open)}
                 className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-text-muted-light dark:text-text-muted-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors"

@@ -5,65 +5,75 @@ import { setDataSource } from './settingsSlice'
 
 export const fetchCategoryNews = createAsyncThunk(
   'category/fetchCategoryNews',
-  async (categoryId, { getState }) => {
+  async ({ categoryId, offset = 0, limit = 30 }, { getState }) => {
     const source = getState().settings.dataSource === 'supabase' ? supabase : rss
-    return await source.fetchCategoryNews(categoryId)
-  }
+    return source.fetchCategoryNews(categoryId, { offset, limit })
+  },
 )
 
 const initialState = {
-  cache: {}, // slug -> { items, loading, error }
+  items: [],
   currentSlug: null,
+  categoryLoading: true,
+  loadingMore: false,
+  error: null,
+  requestId: null,
+  nextOffset: 0,
+  hasMore: true,
 }
 
 const categorySlice = createSlice({
   name: 'category',
   initialState,
-  reducers: {
-    setCurrentSlug(state, action) {
-      state.currentSlug = action.payload
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      // New source → drop every cached category; pages refetch.
-      .addCase(setDataSource, (state) => {
-        state.cache = {}
-      })
+      .addCase(setDataSource, () => initialState)
       .addCase(fetchCategoryNews.pending, (state, action) => {
-        const slug = action.meta.arg
-        const entry = state.cache[slug] || { items: [], loading: false, error: null }
-        entry.loading = true
-        entry.error = null
-        entry.requestId = action.meta.requestId
-        state.cache[slug] = entry
+        const { categoryId, offset = 0 } = action.meta.arg
+        const isNewPage = offset === 0 || state.currentSlug !== categoryId
+        if (isNewPage) {
+          state.items = []
+          state.nextOffset = 0
+          state.hasMore = true
+          state.currentSlug = categoryId
+          state.categoryLoading = true
+          state.loadingMore = false
+        } else {
+          state.loadingMore = true
+        }
+        state.error = null
+        state.requestId = action.meta.requestId
       })
       .addCase(fetchCategoryNews.fulfilled, (state, action) => {
-        const entry = state.cache[action.meta.arg]
-        if (entry?.requestId === action.meta.requestId) {
-          entry.loading = false
-          entry.items = action.payload
+        if (state.requestId !== action.meta.requestId) return
+        const { offset = 0 } = action.meta.arg
+        const { items, nextOffset, hasMore } = action.payload
+        if (offset > 0) {
+          const seen = new Set(state.items.map((item) => item.id))
+          state.items.push(...items.filter((item) => !seen.has(item.id)))
+        } else {
+          state.items = items
         }
+        state.nextOffset = nextOffset
+        state.hasMore = hasMore
+        state.categoryLoading = false
+        state.loadingMore = false
       })
       .addCase(fetchCategoryNews.rejected, (state, action) => {
-        const entry = state.cache[action.meta.arg]
-        if (entry?.requestId === action.meta.requestId) {
-          entry.loading = false
-          entry.error = action.error.message || 'Lỗi tải dữ liệu'
-        }
+        if (state.requestId !== action.meta.requestId) return
+        state.categoryLoading = false
+        state.loadingMore = false
+        state.error = action.error.message || 'Lỗi tải dữ liệu'
       })
   },
 })
 
-export const { setCurrentSlug } = categorySlice.actions
-export const selectCurrentSlug = (state) => state.category.currentSlug
-// Uncached slug = never fetched yet → treat as loading (avoids flashing
-// "no articles" before the fetch thunk's pending case runs).
-// Returns `categoryLoading` (not `loading`) so it matches what
-// CategoryPage destructures: const { categoryLoading, error } = entry.
 export const selectCategoryEntry = (slug) => (state) => {
-  const cached = state.category.cache[slug]
-  if (!cached) return { items: [], categoryLoading: true, error: null }
-  return { items: cached.items, categoryLoading: cached.loading, error: cached.error }
+  if (state.category.currentSlug !== slug) {
+    return { ...initialState, currentSlug: slug }
+  }
+  return state.category
 }
+
 export default categorySlice.reducer

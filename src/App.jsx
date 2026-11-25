@@ -1,26 +1,39 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import PageLayout from './layout/PageLayout'
-import HomePage from './pages/HomePage'
+import AutoReloadDialog from './components/AutoReloadDialog'
 import { fetchNews } from './store'
 
-// App is now a thin router wrapper: layout + page + home revalidation.
-// Page-level state lives in HomePage, not here.
+// App is the shared route layout, so the reload prompt stays mounted while
+// navigating between the home and category pages.
+const RELOAD_INTERVAL = 30 * 60 * 1000 // 30 phút
+
 export default function App() {
   const dispatch = useDispatch()
   const location = useLocation()
   const { loading } = useSelector((state) => state.home)
+  const [showReload, setShowReload] = useState(false)
 
+  // Tự động hỏi reload sau 30 phút kể từ khi vào trang.
   useEffect(() => {
-    if (location.pathname === '/') {
-      dispatch(fetchNews())
-    }
-  }, [dispatch, location.pathname])
+    const timer = setTimeout(() => setShowReload(true), RELOAD_INTERVAL)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleReload = () => {
+    setShowReload(false)
+    dispatch(fetchNews({ offset: 0, limit: 50 }))
+  }
 
   return (
     <PageLayout>
-      <HomePage />
+      <Outlet />
+      <AutoReloadDialog
+        show={showReload && location.pathname === '/' && !loading}
+        onConfirm={handleReload}
+        onDismiss={() => setShowReload(false)}
+      />
     </PageLayout>
   )
 }

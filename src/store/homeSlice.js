@@ -3,15 +3,20 @@ import * as rss from '../data/rssData'
 import * as supabase from '../data/supabaseData'
 import { setDataSource } from './settingsSlice'
 
-export const fetchNews = createAsyncThunk('home/fetchNews', async (_, { getState }) => {
+export const fetchNews = createAsyncThunk('home/fetchNews', async (options = {}, { getState }) => {
   const source = getState().settings.dataSource === 'supabase' ? supabase : rss
-  return await source.fetchHomeNews()
+  return await source.fetchHomeNews(options)
 })
 
 const initialState = {
   items: [],
   loading: true,
+  loadingMore: false,
+  hasMore: true,
+  nextOffset: 0,
   error: null,
+  errorOffset: null,
+  generation: 0,
   requestId: null,
 }
 
@@ -27,19 +32,34 @@ const homeSlice = createSlice({
     builder
       .addCase(setDataSource, () => initialState)
       .addCase(fetchNews.pending, (state, action) => {
-        state.loading = true
+        const isLoadMore = (action.meta.arg?.offset || 0) > 0
+        state.loading = !isLoadMore
+        state.loadingMore = isLoadMore
+        if (!isLoadMore) state.generation += 1
         state.error = null
+        state.errorOffset = null
         state.requestId = action.meta.requestId
       })
       .addCase(fetchNews.fulfilled, (state, action) => {
         if (!isLatest(state, action)) return
         state.loading = false
-        state.items = action.payload
+        state.loadingMore = false
+        const { items, nextOffset, hasMore } = action.payload
+        if ((action.meta.arg?.offset || 0) > 0) {
+          const seen = new Set(state.items.map((item) => item.id))
+          state.items.push(...items.filter((item) => !seen.has(item.id)))
+        } else {
+          state.items = items
+        }
+        state.nextOffset = nextOffset
+        state.hasMore = hasMore
       })
       .addCase(fetchNews.rejected, (state, action) => {
         if (!isLatest(state, action)) return
         state.loading = false
+        state.loadingMore = false
         state.error = action.error.message || 'Lỗi tải dữ liệu'
+        state.errorOffset = action.meta.arg?.offset || 0
       })
   },
 })

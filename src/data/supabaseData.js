@@ -1,9 +1,8 @@
 import { categorizeNews } from './rssData'
 
 const ENDPOINT = '/api/supabase'
-const CACHE_MS = 60_000
-
-let cached = null // { at, promise } — home and category pages share one request
+const HOME_ARTICLE_LIMIT = 50
+const CATEGORY_ARTICLE_LIMIT = 30
 
 // Error codes sent by the /api/supabase proxy, in words a reader can act on.
 const ERROR_MESSAGES = {
@@ -11,6 +10,7 @@ const ERROR_MESSAGES = {
   supabase_unavailable: 'Máy chủ Tafu Hub không phản hồi. Hãy thử lại sau ít phút.',
   not_found: 'Không tìm thấy bài này trên Tafu Hub.',
   invalid_id: 'Mã bài không hợp lệ.',
+  invalid_category: 'Chuyên mục không hợp lệ.',
 }
 
 // Throws a readable error unless the proxy answered 200 with JSON.
@@ -25,7 +25,7 @@ async function readJson(res, what) {
 // Crawled URLs end up in an <a href>: allow web links only (no javascript:/data:).
 const safeLink = (url) => (/^https?:\/\//i.test(url || '') ? url : '#')
 
-function toArticle(story) {
+function toArticle(story, categoryId) {
   const extraSources = (story.sources || []).filter((source) => source !== story.source).length
   return {
     id: `supabase-${story.id}`,
@@ -39,33 +39,29 @@ function toArticle(story) {
     sourceKey: story.source,
     source: extraSources > 0 ? `${story.source} +${extraSources} nguồn` : story.source,
     color: 'blue',
-    category: categorizeNews(`${story.section || ''} ${story.title}`),
+    category: categoryId || categorizeNews(`${story.section || ''} ${story.title}`),
   }
 }
 
-function loadStories() {
-  if (cached && Date.now() - cached.at < CACHE_MS) return cached.promise
-  const promise = fetch(ENDPOINT)
-    .then((res) => readJson(res, 'dữ liệu Tafu Hub'))
-    .then((body) => {
-      // A malformed reply must surface as an error, not as an empty (cached) feed.
-      if (!Array.isArray(body.stories)) throw new Error('Tafu Hub trả về dữ liệu không hợp lệ.')
-      return body.stories.map(toArticle)
-    })
-  cached = { at: Date.now(), promise }
-  promise.catch(() => {
-    if (cached?.promise === promise) cached = null
-  })
-  return promise
+async function loadStories({ limit, offset = 0, categoryId } = {}) {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) })
+  if (categoryId) params.set('category', categoryId)
+  const res = await fetch(`${ENDPOINT}?${params}`, categoryId ? { cache: 'no-store' } : undefined)
+  const body = await readJson(res, 'dữ liệu Tafu Hub')
+  if (!Array.isArray(body.stories)) throw new Error('Tafu Hub trả về dữ liệu không hợp lệ.')
+  return {
+    items: body.stories.map((story) => toArticle(story, categoryId)),
+    nextOffset: Number.isFinite(body.nextOffset) ? body.nextOffset : offset + body.stories.length,
+    hasMore: Boolean(body.hasMore),
+  }
 }
 
-export async function fetchHomeNews() {
-  return loadStories()
+export async function fetchHomeNews({ offset = 0, limit = HOME_ARTICLE_LIMIT } = {}) {
+  return loadStories({ limit, offset })
 }
 
-export async function fetchCategoryNews(categoryId) {
-  const articles = await loadStories()
-  return articles.filter((article) => article.category === categoryId)
+export async function fetchCategoryNews(categoryId, { offset = 0, limit = CATEGORY_ARTICLE_LIMIT } = {}) {
+  return loadStories({ limit, offset, categoryId })
 }
 
 // Full text + images of one story, fetched when its dialog opens.

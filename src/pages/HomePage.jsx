@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import SkeletonLoader from '../components/SkeletonLoader'
 import FirstArticle from '../components/FirstArticle'
@@ -14,6 +14,7 @@ import { NEWS_CATEGORIES } from '../data/rssData.js'
 const FIRST_ARTICLE_COUNT = 1
 const RECENT_ARTICLES_COUNT = 3
 const LONGFORM_PAGE_SIZE = 6
+const HOME_PAGE_SIZE = 50
 
 function getCategoryLabel(id) {
   const found = NEWS_CATEGORIES.find((cat) => cat.id === id)
@@ -22,17 +23,42 @@ function getCategoryLabel(id) {
 
 export default function HomePage() {
   const dispatch = useDispatch()
-  const { items: fetchedItems, loading, error } = useSelector((state) => state.home)
+  const {
+    items: fetchedItems,
+    loading,
+    loadingMore,
+    hasMore,
+    nextOffset,
+    error,
+    errorOffset,
+    generation,
+  } = useSelector((state) => state.home)
   const mix = useSelector(selectMixSources)
   const items = useMemo(() => (mix ? mixSources(fetchedItems) : fetchedItems), [fetchedItems, mix])
   const dataSource = useSelector(selectDataSource)
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [visibleLongform, setVisibleLongform] = useState(LONGFORM_PAGE_SIZE)
   const sentinelRef = useRef(null)
+  const loadLock = useRef(false)
+  const requestedSource = useRef(null)
+  const [hasStartedRequest, setHasStartedRequest] = useState(false)
+
+  const requestPage = useCallback((offset) => {
+    if (loadLock.current || loading || loadingMore) return
+    loadLock.current = true
+    dispatch(fetchNews({ offset, limit: HOME_PAGE_SIZE }))
+  }, [dispatch, loading, loadingMore])
 
   useEffect(() => {
-    dispatch(fetchNews())
+    if (requestedSource.current === dataSource) return
+    requestedSource.current = dataSource
+    setHasStartedRequest(true)
+    dispatch(fetchNews({ offset: 0, limit: HOME_PAGE_SIZE }))
   }, [dispatch, dataSource])
+
+  useEffect(() => {
+    if (!loading && !loadingMore) loadLock.current = false
+  }, [loading, loadingMore])
 
   // State management for article groups - ensures no overlap
   const articleGroups = useMemo(() => {
@@ -96,7 +122,7 @@ export default function HomePage() {
   // Reset visible longform count when data reloads
   useEffect(() => {
     setVisibleLongform(LONGFORM_PAGE_SIZE)
-  }, [items])
+  }, [generation])
 
   const longformVisible = useMemo(() => {
     return articleGroups.longformPool.slice(0, visibleLongform)
@@ -111,17 +137,30 @@ export default function HomePage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMoreLongform) {
+        if (!entries[0].isIntersecting) return
+        if (hasMoreLongform) {
           setVisibleLongform((prev) =>
             Math.min(prev + LONGFORM_PAGE_SIZE, articleGroups.longformPool.length)
           )
+        } else if (hasMore && !loading && !loadingMore && !error) {
+          requestPage(nextOffset)
         }
       },
       { rootMargin: '150px', threshold: 0.1 }
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [hasMoreLongform, articleGroups.longformPool.length, visibleLongform])
+  }, [
+    hasMoreLongform,
+    articleGroups.longformPool.length,
+    visibleLongform,
+    hasMore,
+    loading,
+    loadingMore,
+    error,
+    nextOffset,
+    requestPage,
+  ])
 
   // Browse by Category columns: one real article per category, never repeated.
   // Prefer articles not already shown higher up the page; skip empty categories.
@@ -146,20 +185,24 @@ export default function HomePage() {
     return picked
   }, [articleGroups])
 
-  if (loading && items.length === 0) {
+  if (!hasStartedRequest || loading) {
     return <SkeletonLoader />
   }
 
-  if (error) {
+  if (error && items.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
         <p className="text-red-500">{error}</p>
-       {selectedArticle && (
-         <NewsModal news={selectedArticle} onClose={() => setSelectedArticle(null)} />
-       )}
-     </div>
-   )
-}
+        <button
+          type="button"
+          onClick={() => requestPage(0)}
+          className="ml-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+        >
+          Thử lại
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -272,8 +315,27 @@ export default function HomePage() {
       <section className="mb-12 lg:mb-16 animate-pageFadeInUp stagger-4">
         <LongformArticles articles={longformVisible} onOpen={setSelectedArticle} />
         <div ref={sentinelRef} className="h-8 flex items-center justify-center py-0 m-0">
-          {hasMoreLongform ? (
+          {hasMoreLongform || loadingMore ? (
             <div className="flex items-center gap-1" aria-label="Đang tải thêm">
+              <span className="loading-dot w-1 h-1 rounded-full bg-primary inline-block"></span>
+              <span className="loading-dot loading-dot-2 w-1 h-1 rounded-full bg-primary inline-block"></span>
+              <span className="loading-dot loading-dot-3 w-1 h-1 rounded-full bg-primary inline-block"></span>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center gap-2">
+              <p role="alert" className="text-xs text-red-500">
+                {errorOffset === 0 ? 'Không thể cập nhật tin.' : 'Không tải được tin tiếp theo.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => requestPage(errorOffset === 0 ? 0 : nextOffset)}
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Thử lại
+              </button>
+            </div>
+          ) : hasMore ? (
+            <div className="flex items-center gap-1" aria-label="Có thêm tin">
               <span className="loading-dot w-1 h-1 rounded-full bg-primary inline-block"></span>
               <span className="loading-dot loading-dot-2 w-1 h-1 rounded-full bg-primary inline-block"></span>
               <span className="loading-dot loading-dot-3 w-1 h-1 rounded-full bg-primary inline-block"></span>

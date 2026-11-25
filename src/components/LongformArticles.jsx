@@ -79,11 +79,21 @@ const LONGFORM_PAGE_SIZE = 6
                     </div>
                   </div>
                 </div>
-                <div
-                  className="w-full bg-cover bg-center bg-no-repeat aspect-[4/3] rounded-lg transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.02] group-hover:shadow-lg"
-                  style={{ backgroundImage: article.image ? `url("${article.image}")` : 'none' }}
-                  alt={article.title}
-                />
+                {article.image ? (
+                  <img
+                    src={article.image}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full aspect-[4/3] rounded-lg object-cover transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.02] group-hover:shadow-lg"
+                  />
+                ) : (
+                  <div
+                    aria-hidden="true"
+                    className="w-full aspect-[4/3] rounded-lg bg-black/5 dark:bg-white/5"
+                  />
+                )}
               </div>
             </div>
         ))}
