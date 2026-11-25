@@ -1,5 +1,7 @@
 import React from 'react'
 
+const ARTICLE_IMAGE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDvHnAWS4FAdl_W6SlFtpPQH-6a07_1sCwUyGFEKpb0PBRF-Y2ygRDa1Kjjqthr_nbwwllgkKRt4KQVQhrWJvHTBC1qknOFNQgQmfomd9oVXvKSWDHi2-BrGDW9uUP95FleZhPLZXWCmxWLvm_bY4Pc--D4767dyvLmX_2AZ8yLKZtUy5YFZ6USj57S9fiQ6RAQks4-7tgUnAemgsSy8WIstMFGZjOFDfPLaLZl5LO0dXnXMxlaBgOC0lntnFKB7_JAz9vndNw0L0s'
+
 function ArticleDetailPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
@@ -24,8 +26,10 @@ function ArticleDetailPage() {
             
             <figure className="mb-12">
               <img 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvHnAWS4FAdl_W6SlFtpPQH-6a07_1sCwUyGFEKpb0PBRF-Y2ygRDa1Kjjqthr_nbwwllgkKRt4KQVQhrWJvHTBC1qknOFNQgQmfomd9oVXvKSWDHi2-BrGDW9uUP95FleZhPLZXWCmxWLvm_bY4Pc--D4767dyvLmX_2AZ8yLKZtUy5YFZ6USj57S9fiQ6RAQks4-7tgUnAemgsSy8WIstMFGZjOFDfPLaLZl5LO0dXnXMxlaBgOC0lntnFKB7_JAz9vndNw0L0s" 
+                src={ARTICLE_IMAGE}
                 alt="AI healthcare technology"
+                loading="lazy"
+                decoding="async"
                 className="rounded-xl border border-border-light dark:border-border-dark"
               />
               <figcaption className="mt-4 text-xs text-text-muted-light dark:text-text-muted-dark text-center">
@@ -72,8 +76,7 @@ function ArticleDetailPage() {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="card">
                   <div className="flex items-start gap-4">
-                    <div className="w-24 h-24 bg-cover bg-center bg-no-repeat rounded-lg"
-                         style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvHnAWS4FAdl_W6SlFtpPQH-6a07_1sCwUyGFEKpb0PBRF-Y2ygRDa1Kjjqthr_nbwwllgkKRt4KQVQhrWJvHTBC1qknOFNQgQmfomd9oVXvKSWDHi2-BrGDW9uUP95FleZhPLZXWCmxWLvm_bY4Pc--D4767dyvLmX_2AZ8yLKZtUy5YFZ6USj57S9fiQ6RAQks4-7tgUnAemgsSy8WIstMFGZjOFDfPLaLZl5LO0dXnXMxlaBgOC0lntnFKB7_JAz9vndNw0L0s")` }}></div>
+                    <img src={ARTICLE_IMAGE} alt="" aria-hidden="true" loading="lazy" decoding="async" className="h-24 w-24 rounded-lg object-cover" />
                     <div className="flex-1">
                       <h3 className="font-semibold text-text-light dark:text-text-dark mb-2">The Future of Telemedicine: Virtual Care Beyond the Pandemic</h3>
                       <p className="text-text-muted-light dark:text-text-muted-dark mb-2">By Michael Rodriguez • 2 days ago</p>
@@ -83,8 +86,7 @@ function ArticleDetailPage() {
                 </div>
                 <div className="card">
                   <div className="flex items-start gap-4">
-                    <div className="w-24 h-24 bg-cover bg-center bg-no-repeat rounded-lg"
-                         style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvHnAWS4FAdl_W6SlFtpPQH-6a07_1sCwUyGFEKpb0PBRF-Y2ygRDa1Kjjqthr_nbwwllgkKRt4KQVQhrWJvHTBC1qknOFNQgQmfomd9oVXvKSWDHi2-BrGDW9uUP95FleZhPLZXWCmxWLvm_bY4Pc--D4767dyvLmX_2AZ8yLKZtUy5YFZ6USj57S9fiQ6RAQks4-7tgUnAemgsSy8WIstMFGZjOFDfPLaLZl5LO0dXnXMxlaBgOC0lntnFKB7_JAz9vndNw0L0s")` }}></div>
+                    <img src={ARTICLE_IMAGE} alt="" aria-hidden="true" loading="lazy" decoding="async" className="h-24 w-24 rounded-lg object-cover" />
                     <div className="flex-1">
                       <h3 className="font-semibold text-text-light dark:text-text-dark mb-2">Wearable Health Tech: Monitoring Your Wellbeing in Real-Time</h3>
                       <p className="text-text-muted-light dark:text-text-muted-dark mb-2">By Amanda Foster • 1 day ago</p>

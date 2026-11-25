@@ -135,6 +135,8 @@ function NewsModal({ news, onClose }) {
             <img
               src={news.image}
               alt={news.title}
+              loading="eager"
+              decoding="async"
               className="mb-6 h-64 w-full rounded-t-xl object-cover"
             />
           )}

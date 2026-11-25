@@ -56,6 +56,8 @@ function ImageCarousel({ images, title }) {
           key={current.url}
           src={current.url}
           alt={current.alt || current.caption || title}
+          loading="eager"
+          decoding="async"
           draggable={false}
           className="h-full w-full object-contain carousel-fade"
         />

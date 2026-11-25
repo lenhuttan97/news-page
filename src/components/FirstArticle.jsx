@@ -13,7 +13,8 @@ function FirstArticle({ news, onOpen }) {
         <img
           src={news.image ? news.image : 'https://picsum.photos/seed/news-hero/800/450'}
           alt={news.title}
-          loading="lazy"
+          loading="eager"
+          fetchPriority="high"
           className="w-full object-cover rounded-lg aspect-video cursor-pointer"
           onClick={open}
         />
