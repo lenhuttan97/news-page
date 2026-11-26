@@ -26,18 +26,20 @@ async function readJson(res, what) {
 const safeLink = (url) => (/^https?:\/\//i.test(url || '') ? url : '#')
 
 function toArticle(story, categoryId) {
-  const extraSources = (story.sources || []).filter((source) => source !== story.source).length
+  const sources = (story.sources || []).filter((source) => source?.url)
+  const primarySource = sources[0]?.source || sources[0]?.url || story.authors?.[0] || 'Tafu Hub'
+  const extraSources = Math.max(sources.length - 1, 0)
   return {
     id: `supabase-${story.id}`,
     supabaseId: story.id,
     title: story.title,
     description: story.description || '',
-    link: safeLink(story.canonical_url || story.url),
-    // Same rule as the proxy's sort: unparsable publish times fall back to crawl time.
-    pubDate: Number.isNaN(Date.parse(story.published_at)) ? story.crawled_at : story.published_at,
+    link: safeLink(sources[0]?.url),
+    // Same rule as the proxy's sort: unparsable publish times fall back to creation time.
+    pubDate: Number.isNaN(Date.parse(story.published_at)) ? story.created_at : story.published_at,
     image: story.lead_image_url || '',
-    sourceKey: story.source,
-    source: extraSources > 0 ? `${story.source} +${extraSources} nguồn` : story.source,
+    sourceKey: primarySource,
+    source: extraSources > 0 ? `${primarySource} +${extraSources} nguồn` : primarySource,
     color: 'blue',
     category: categoryId || categorizeNews(`${story.section || ''} ${story.title}`),
   }

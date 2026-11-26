@@ -3,11 +3,8 @@ import { NEWS_CATEGORIES } from '../src/data/rssData.js'
 // Read-only proxy to the mini_crawler Supabase mirror. The tables have RLS with
 // no policies, so only the secret key can read them; it stays on the server.
 const STORY_COLUMNS =
-  'id,url,canonical_url,source,title,description,published_at,section,tags,lead_image_url,crawled_at'
+  'id,sources,title,description,published_at,section,tags,lead_image_url,created_at'
 const MAX_LIMIT = 200
-// A story has at most one mapping per source (unique story_id+source), so 50 ids
-// stay far below PostgREST's row cap and keep each URL ~2 KB.
-const IDS_PER_REQUEST = 50
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // Every call here reads rows, so anything but a JSON array is an upstream fault.
@@ -25,10 +22,10 @@ async function rest(env, path) {
 }
 
 // Newest first by publish time; stories without one (or unparsable) fall back
-// to crawl time. Done here because published_at is text with mixed offsets.
+// to creation time.
 function storyTime(story) {
   const published = Date.parse(story.published_at)
-  return Number.isNaN(published) ? Date.parse(story.crawled_at) || 0 : published
+  return Number.isNaN(published) ? Date.parse(story.created_at) || 0 : published
 }
 
 function fail(status, message, code) {
@@ -67,14 +64,14 @@ export async function loadStories(env, limit = MAX_LIMIT, offset = 0, categoryId
   if (!categoryId) {
     stories = await rest(
       env,
-      `news_stories?select=${STORY_COLUMNS}&order=crawled_at.desc,id.desc&offset=${start}&limit=${size}`,
+      `news_stories?select=${STORY_COLUMNS}&order=created_at.desc,id.desc&offset=${start}&limit=${size}`,
     )
     nextOffset += stories.length
     hasMore = stories.length === size
   } else {
     stories = await rest(
       env,
-      `news_stories?select=${STORY_COLUMNS}&section=eq.${encodeURIComponent(categoryId)}&order=crawled_at.desc,id.desc&offset=${start}&limit=${size}`,
+      `news_stories?select=${STORY_COLUMNS}&section=eq.${encodeURIComponent(categoryId)}&order=created_at.desc,id.desc&offset=${start}&limit=${size}`,
     )
     nextOffset += stories.length
     hasMore = stories.length === size
@@ -82,26 +79,12 @@ export async function loadStories(env, limit = MAX_LIMIT, offset = 0, categoryId
 
   if (stories.length === 0) return { stories: [], nextOffset, hasMore }
 
-  // Batched lookups for all mappings (a few requests in parallel, not one per story).
-  const chunks = []
-  for (let i = 0; i < stories.length; i += IDS_PER_REQUEST) {
-    chunks.push(stories.slice(i, i + IDS_PER_REQUEST).map((story) => story.id).join(','))
-  }
-  const mappings = (
-    await Promise.all(
-      chunks.map((ids) => rest(env, `news_story_articles?select=story_id,source&story_id=in.(${ids})`)),
-    )
-  ).flat()
-  const sourcesByStory = new Map()
-  for (const { story_id: storyId, source } of mappings) {
-    if (!source) continue
-    if (!sourcesByStory.has(storyId)) sourcesByStory.set(storyId, new Set())
-    sourcesByStory.get(storyId).add(source)
-  }
-
   return {
     stories: stories
-      .map((story) => ({ ...story, sources: [...(sourcesByStory.get(story.id) || [])] }))
+      .map((story) => ({
+        ...story,
+        sources: Array.isArray(story.sources) ? story.sources : [],
+      }))
       .sort((a, b) => storyTime(b) - storyTime(a)),
     nextOffset,
     hasMore,
