@@ -75,7 +75,7 @@ function CategoryPage() {
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [error, requestNextPage])
+  }, [error, requestNextPage, isShowingLoading])
 
   const sidebarArticles = allArticles
     .filter((item) => item.category && item.category.toLowerCase() !== (slug || '').toLowerCase())
