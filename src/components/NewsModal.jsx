@@ -159,9 +159,11 @@ function NewsModal({ news, onClose }) {
             </p>
 
             {isMarkdownBody ? (
-              <React.Suspense fallback={null}>
-                <MarkdownBody text={detail.data.text} />
-              </React.Suspense>
+              <div className="text-base leading-relaxed text-text-light dark:text-text-dark">
+                <React.Suspense fallback={null}>
+                  <MarkdownBody text={detail.data.text} />
+                </React.Suspense>
+              </div>
             ) : (
               <StoryBody detail={detail} />
             )}

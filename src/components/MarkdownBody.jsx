@@ -3,11 +3,11 @@ import remarkGfm from 'remark-gfm'
 
 // Markdown uses the same palette as the dialog; images stay inside its content width.
 const markdownComponents = {
-  h1: ({ node, ...props }) => <h2 className="mb-3 mt-6 font-serif text-xl font-bold first:mt-0" {...props} />,
-  h2: ({ node, ...props }) => <h3 className="mb-3 mt-6 font-serif text-lg font-bold first:mt-0" {...props} />,
-  h3: ({ node, ...props }) => <h4 className="mb-2 mt-5 text-base font-semibold first:mt-0" {...props} />,
-  h4: ({ node, ...props }) => <h5 className="mb-2 mt-4 text-sm font-semibold first:mt-0" {...props} />,
-  h5: ({ node, ...props }) => <h6 className="mb-2 mt-3 text-sm font-medium first:mt-0" {...props} />,
+  h1: ({ node, ...props }) => <h2 className="mb-3 mt-6 font-serif text-xl font-bold first:mt-0 text-text-light dark:text-text-dark" {...props} />,
+  h2: ({ node, ...props }) => <h3 className="mb-3 mt-6 font-serif text-lg font-bold first:mt-0 text-text-light dark:text-text-dark" {...props} />,
+  h3: ({ node, ...props }) => <h4 className="mb-2 mt-5 text-base font-semibold first:mt-0 text-text-light dark:text-text-dark" {...props} />,
+  h4: ({ node, ...props }) => <h5 className="mb-2 mt-4 text-sm font-semibold first:mt-0 text-text-light dark:text-text-dark" {...props} />,
+  h5: ({ node, ...props }) => <h6 className="mb-2 mt-3 text-sm font-medium first:mt-0 text-text-light dark:text-text-dark" {...props} />,
   h6: ({ node, ...props }) => <span className="mb-2 mt-3 text-sm text-text-muted-light dark:text-text-muted-dark" {...props} />,
   p: ({ node, ...props }) => <p className="mb-4 last:mb-0" {...props} />,
   a: ({ node, ...props }) => {
