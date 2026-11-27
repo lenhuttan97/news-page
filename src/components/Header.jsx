@@ -99,7 +99,7 @@ function Header() {
           </Link>
 
           {/* Center: Categories Navigation (Centered) */}
-          <nav className="hidden lg:flex items-center justify-center gap-5 xl:gap-8 flex-1 mx-4">
+          <nav className="hidden lg:flex items-center justify-center gap-4 xl:gap-8 flex-1 mx-2">
             {prominentCategories.map((cat) => (
               <Link
                 key={cat.id}
