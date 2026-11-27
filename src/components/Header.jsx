@@ -88,18 +88,18 @@ function Header() {
               if (location.pathname === '/') dispatch(fetchNews({ offset: 0, limit: 50 }))
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
-            className="flex shrink-0 items-center gap-2.5 text-xl font-bold font-serif text-text-light dark:text-text-dark group animate-pageFadeInUp stagger-1 sm:text-2xl"
+            className="flex shrink-0 items-center gap-2.5 text-lg font-bold font-serif text-text-light dark:text-text-dark group animate-pageFadeInUp stagger-1 sm:text-xl lg:text-2xl"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-md transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105 sm:h-10 sm:w-10">
               <span className="material-symbols-outlined text-[22px]">newspaper</span>
             </div>
-            <span className="hidden bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent transition-opacity group-hover:opacity-90 sm:inline">
+            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent transition-opacity group-hover:opacity-90">
               Tafu Hub
             </span>
           </Link>
 
           {/* Center: Categories Navigation (Centered) */}
-          <nav className="hidden md:flex items-center justify-center gap-6 lg:gap-8 flex-1 mx-6">
+          <nav className="hidden lg:flex items-center justify-center gap-5 xl:gap-8 flex-1 mx-4">
             {prominentCategories.map((cat) => (
               <Link
                 key={cat.id}
@@ -148,7 +148,7 @@ function Header() {
           {/* Right: Mobile & Theme Toggles */}
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             {/* Mobile Navigation Dropdown */}
-            <div className="relative md:hidden" ref={mobileRef}>
+            <div className="relative min-w-0 lg:hidden" ref={mobileRef}>
               <button
                 onClick={() => setMobileMenuOpen((open) => !open)}
                 className="flex max-w-[42vw] items-center gap-1.5 rounded-lg border border-border-light bg-black/5 px-3 py-2 text-sm font-medium text-text-light dark:border-border-dark dark:bg-white/5 dark:text-text-dark"
@@ -184,7 +184,7 @@ function Header() {
             </div>
 
             {/* Mobile settings combines data source, mixing, and theme controls. */}
-            <div className="relative md:hidden" ref={mobileSettingsRef}>
+            <div className="relative lg:hidden" ref={mobileSettingsRef}>
               <button
                 type="button"
                 onClick={() => setMobileSettingsOpen((open) => !open)}
@@ -263,7 +263,7 @@ function Header() {
             </div>
 
             {/* Data Source Toggle (saved in localStorage) */}
-            <div className="relative hidden md:block" ref={sourceRef}>
+            <div className="relative hidden lg:block" ref={sourceRef}>
               <button
                 onClick={() => setSourceOpen((open) => !open)}
                 className="flex h-10 cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-text-muted-light dark:text-text-muted-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
@@ -323,7 +323,7 @@ function Header() {
             </div>
 
             {/* Theme Toggle Button */}
-            <div className="relative hidden md:block" ref={themeRef}>
+            <div className="relative hidden lg:block" ref={themeRef}>
               <button
                 onClick={() => setThemeOpen((open) => !open)}
                 className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-text-muted-light dark:text-text-muted-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
