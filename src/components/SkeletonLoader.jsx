@@ -16,11 +16,11 @@ export default function SkeletonLoader() {
         </div>
         {/* Content Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="col-span-12 lg:col-span-9 space-y-8">
+          <div className="lg:col-span-9 space-y-8 min-w-0">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex gap-6">
+              <div key={i} className="flex gap-6 min-w-0">
                 <div className="h-32 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg flex-shrink-0"></div>
-                <div className="space-y-3 flex-1">
+                <div className="space-y-3 flex-1 min-w-0">
                   <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/3"></div>
                   <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
                   <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3"></div>
